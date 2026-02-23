@@ -1,0 +1,265 @@
+/* ─── Scene wrapper ──────────────────────────────────────────────────────── */
+.postcard-scene {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 40px;
+}
+
+.postcard-entrance {
+  display: inline-block;
+  cursor: pointer;
+  max-width: 520px;
+  width: 100%;
+}
+
+/* Float animation — paused when parent is hovered */
+.postcard-float {
+  animation: postcard-float 5s ease-in-out infinite;
+}
+.postcard-entrance:hover .postcard-float {
+  animation-play-state: paused;
+}
+
+@keyframes postcard-float {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-9px); }
+}
+
+/* ─── Physical card ──────────────────────────────────────────────────────── */
+.postcard {
+  background: #fff;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  /* Layered shadow for real photo-print depth */
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.18),
+    0 4px 16px rgba(0,0,0,0.35),
+    0 16px 48px rgba(0,0,0,0.25),
+    inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+/* ─── Airmail stripes ────────────────────────────────────────────────────── */
+.postcard__stripe {
+  height: 9px;
+  background: repeating-linear-gradient(
+    90deg,
+    #c0392b 0px, #c0392b 14px,
+    #ffffff 14px, #ffffff 22px,
+    #2471a3 22px, #2471a3 36px,
+    #ffffff 36px, #ffffff 44px
+  );
+  flex-shrink: 0;
+}
+
+/* ─── Image ──────────────────────────────────────────────────────────────── */
+.postcard__image-wrap {
+  position: relative;
+  overflow: hidden;
+  /* White inset border around image */
+  margin: 10px 10px 0;
+  border-radius: 1px;
+}
+
+.postcard__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  filter: sepia(10%) contrast(108%) saturate(90%);
+}
+
+/* Vignette overlay */
+.postcard__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.32) 100%);
+  pointer-events: none;
+}
+
+/* ─── Caption strip ──────────────────────────────────────────────────────── */
+.postcard__caption {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 10px 14px 10px 14px;
+  background: #fff;
+  gap: 10px;
+}
+
+.postcard__caption-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.postcard__greeting {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 1px;
+}
+
+.postcard__location {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  font-weight: 600;
+  color: #1a1008;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Stamp ──────────────────────────────────────────────────────────────── */
+.postcard__stamp {
+  flex-shrink: 0;
+}
+
+.postcard__stamp-frame {
+  width: 52px;
+  height: 64px;
+  background: #f8f2e6;
+  border: 1px solid #c9a96e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  /* Perforated edge via repeating box-shadow dots */
+  box-shadow:
+    /* top dots */
+    0 -4px 0 -2px #fff, 4px -4px 0 -2px #fff, 8px -4px 0 -2px #fff,
+    12px -4px 0 -2px #fff, 16px -4px 0 -2px #fff, 20px -4px 0 -2px #fff,
+    24px -4px 0 -2px #fff, 28px -4px 0 -2px #fff, 32px -4px 0 -2px #fff,
+    36px -4px 0 -2px #fff, 40px -4px 0 -2px #fff, 44px -4px 0 -2px #fff,
+    48px -4px 0 -2px #fff,
+    /* bottom dots */
+    0 4px 0 -2px #fff, 4px 4px 0 -2px #fff, 8px 4px 0 -2px #fff,
+    12px 4px 0 -2px #fff, 16px 4px 0 -2px #fff, 20px 4px 0 -2px #fff,
+    24px 4px 0 -2px #fff, 28px 4px 0 -2px #fff, 32px 4px 0 -2px #fff,
+    36px 4px 0 -2px #fff, 40px 4px 0 -2px #fff, 44px 4px 0 -2px #fff,
+    48px 4px 0 -2px #fff;
+}
+
+.postcard__stamp-icon {
+  font-size: 1.1rem;
+  color: #c9a96e;
+}
+
+.postcard__stamp-word {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.45rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #a07840;
+}
+
+/* ─── Postmark ───────────────────────────────────────────────────────────── */
+.postcard__postmark {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 52px;
+  height: 52px;
+  border: 1.5px solid rgba(80, 40, 20, 0.45);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  transform: rotate(-12deg);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.postcard__postmark-year {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(80, 40, 20, 0.85);
+}
+
+.postcard__postmark-line {
+  display: block;
+  width: 30px;
+  height: 1px;
+  background: rgba(80, 40, 20, 0.45);
+}
+
+.postcard__postmark-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(80, 40, 20, 0.75);
+}
+
+/* ─── Photo corner marks ─────────────────────────────────────────────────── */
+.postcard__corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  opacity: 0.5;
+}
+
+.postcard__corner::before,
+.postcard__corner::after {
+  content: '';
+  position: absolute;
+  background: #1a1008;
+  border-radius: 1px;
+}
+
+/* Vertical bar */
+.postcard__corner::before { width: 1.5px; height: 8px; }
+/* Horizontal bar */
+.postcard__corner::after  { width: 8px; height: 1.5px; }
+
+.postcard__corner--tl { top: 13px; left: 13px; }
+.postcard__corner--tl::before { top: 0; left: 0; }
+.postcard__corner--tl::after  { top: 0; left: 0; }
+
+.postcard__corner--tr { top: 13px; right: 13px; }
+.postcard__corner--tr::before { top: 0; right: 0; }
+.postcard__corner--tr::after  { top: 0; right: 0; }
+
+.postcard__corner--bl { bottom: 24px; left: 13px; }
+.postcard__corner--bl::before { bottom: 0; left: 0; }
+.postcard__corner--bl::after  { bottom: 0; left: 0; }
+
+.postcard__corner--br { bottom: 24px; right: 13px; }
+.postcard__corner--br::before { bottom: 0; right: 0; }
+.postcard__corner--br::after  { bottom: 0; right: 0; }
+
+/* ─── Save button ────────────────────────────────────────────────────────── */
+.postcard__save {
+  display: block;
+  margin: 12px auto 0;
+  background: transparent;
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  padding: 6px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  opacity: 0;
+}
+
+.postcard-entrance:hover .postcard__save {
+  opacity: 1;
+}
+
+.postcard__save:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.postcard__save--loading { opacity: 0.5 !important; cursor: not-allowed; }

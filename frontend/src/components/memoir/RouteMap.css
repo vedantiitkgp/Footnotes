@@ -1,0 +1,44 @@
+.route-map {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.route-map--empty,
+.route-map--fallback,
+.route-map__loading {
+  background: var(--bg-card);
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.route-map__locations-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+}
+
+.route-map__locations {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--accent-cream-dim);
+}
+
+/* Override Leaflet popup for dark theme */
+.leaflet-popup-content-wrapper {
+  background: var(--bg-card) !important;
+  color: var(--accent-cream) !important;
+  border: 1px solid var(--border-medium) !important;
+  box-shadow: var(--shadow-card) !important;
+  font-family: var(--font-serif) !important;
+  font-size: 0.85rem !important;
+  border-radius: 6px !important;
+}
+.leaflet-popup-tip { background: var(--bg-card) !important; }
+.leaflet-popup-close-button { color: var(--text-muted) !important; }

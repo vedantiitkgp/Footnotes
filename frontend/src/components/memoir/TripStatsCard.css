@@ -1,0 +1,42 @@
+.trip-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .trip-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+.trip-stats__item {
+  background: var(--bg-card);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.trip-stats__icon {
+  font-size: 1rem;
+  color: var(--accent-gold);
+}
+
+.trip-stats__value {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: var(--accent-cream);
+  line-height: 1;
+}
+
+.trip-stats__label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}

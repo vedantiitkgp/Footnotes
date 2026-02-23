@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  memoir:
+    build: .
+    ports:
+      - "80:3001"
+    environment:
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      # Persist uploaded photos and generated assets across restarts
+      - memoir-temp:/app/temp
+    restart: unless-stopped
+
+volumes:
+  memoir-temp:

@@ -1,0 +1,52 @@
+.dropzone {
+  border: 1.5px dashed var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px;
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base);
+  text-align: center;
+  background: var(--bg-card);
+}
+
+.dropzone:hover,
+.dropzone--active {
+  border-color: var(--accent-gold);
+  background: rgba(201, 169, 110, 0.04);
+}
+
+.dropzone--has-files {
+  padding: 24px 32px;
+  border-style: solid;
+  border-color: var(--border-medium);
+}
+
+.dropzone__inner {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropzone__icon {
+  font-size: 2rem;
+  color: var(--accent-gold);
+  line-height: 1;
+  transition: transform var(--transition-base);
+}
+
+.dropzone--active .dropzone__icon {
+  transform: scale(1.15);
+}
+
+.dropzone__title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--accent-cream);
+}
+
+.dropzone__hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
