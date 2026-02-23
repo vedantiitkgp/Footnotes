@@ -1,0 +1,106 @@
+.whatif {
+  margin: 80px 0 40px;
+  padding: 0;
+}
+
+.whatif__header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.whatif__eyebrow {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.whatif__title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  color: var(--accent-cream);
+  margin: 0 0 10px;
+  font-style: italic;
+}
+
+.whatif__subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ── Cards ── */
+.whatif__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.whatif__card {
+  background: rgba(201, 168, 76, 0.04);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  border-radius: 12px;
+  padding: 1.75rem 1.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.whatif__card:hover {
+  border-color: rgba(201, 168, 76, 0.35);
+}
+
+.whatif__num {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--accent-gold);
+  opacity: 0.6;
+}
+
+.whatif__question {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--accent-cream);
+  margin: 0;
+  flex: 1;
+}
+
+.whatif__answer {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+  font-style: italic;
+  border-top: 1px solid rgba(201, 168, 76, 0.12);
+  padding-top: 0.75rem;
+  overflow: hidden;
+}
+
+.whatif__reveal {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  color: var(--accent-gold);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  margin-top: auto;
+}
+
+.whatif__reveal:hover {
+  background: rgba(201, 168, 76, 0.08);
+  border-color: rgba(201, 168, 76, 0.6);
+}

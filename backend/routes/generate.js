@@ -2,7 +2,9 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { getSession, getSessionDir } from '../services/sessionStore.js';
-import { analyzePhotos, streamEssay } from '../services/geminiService.js';
+import { analyzePhotos, streamEssay, generateWhatIf } from '../services/geminiService.js';
+import { analyzeWithVision, isVisionEnabled } from '../services/visionService.js';
+import { extractPhotoMetadata, buildExifContext } from '../services/exifService.js';
 import { generateAllPostcards } from '../services/imagenService.js';
 import { generateVoiceover } from '../services/ttsService.js';
 
@@ -45,7 +47,47 @@ router.get('/:sessionId', async (req, res) => {
     const photoPaths = photoFiles.map((f) => path.join(photosDir, f));
 
     sendEvent(res, 'progress', { stage: 'analyzing', percent: 12, message: 'Understanding locations and moods…' });
-    const analysis = await analyzePhotos(photoPaths);
+
+    // Run Gemini analysis, Vision API, and EXIF extraction in parallel
+    const [analysis, visionData, exifMeta] = await Promise.all([
+      analyzePhotos(photoPaths),
+      isVisionEnabled() ? analyzeWithVision(photoPaths) : Promise.resolve(null),
+      extractPhotoMetadata(photoPaths),
+    ]);
+
+    // Enrich analysis with GPS-confirmed locations and real timestamps from EXIF
+    if (exifMeta.length > 0) {
+      const exif = await buildExifContext(exifMeta);
+      if (exif.gpsLocations.length > 0) {
+        // GPS locations are high-confidence — prepend so essay uses them
+        analysis.locations = [...new Set([...exif.gpsLocations, ...(analysis.locations || [])])];
+        analysis.gpsLocations = exif.gpsLocations;
+        console.log('[generate] EXIF GPS locations:', exif.gpsLocations);
+      }
+      if (exif.days !== null) {
+        analysis.days = exif.days;
+        console.log('[generate] EXIF trip duration:', exif.days, 'days');
+      }
+      if (exif.timestamps.length > 0) {
+        const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        analysis.photoTimeline = `Photos taken ${fmt(exif.timestamps[0])} – ${fmt(exif.timestamps[exif.timestamps.length - 1])}`;
+      }
+    }
+
+    // Merge Vision API results into analysis (Vision data takes priority for landmarks)
+    if (visionData) {
+      if (visionData.landmarks.length) {
+        analysis.landmarks = [...new Set([...visionData.landmarks, ...(analysis.landmarks || [])])];
+      }
+      if (visionData.faceSnippets.length) {
+        analysis.people = [...new Set([...(analysis.people || []), ...visionData.faceSnippets])];
+      }
+      if (visionData.signText.length) {
+        analysis.signText = [...new Set([...(analysis.signText || []), ...visionData.signText])];
+      }
+      console.log('[generate] Vision API merged:', JSON.stringify(visionData).slice(0, 200));
+    }
+
     console.log('[generate] Analysis:', JSON.stringify(analysis).slice(0, 200));
 
     sendEvent(res, 'progress', { stage: 'analyzing', percent: 25, message: 'Photos analyzed — crafting your story…' });
@@ -134,6 +176,22 @@ router.get('/:sessionId', async (req, res) => {
       description: session.description,
       style: session.style || 'literary',
     };
+    fs.writeFileSync(
+      path.join(sessionDir, 'memoir.json'),
+      JSON.stringify(memoirData, null, 2),
+    );
+
+    // ── Stage 6: What If? ──────────────────────────────────────────────────
+    let whatIf = [];
+    try {
+      whatIf = await generateWhatIf({ locations: analysis.locations || [], essay: fullEssay });
+      if (whatIf.length) sendEvent(res, 'what_if', { items: whatIf });
+    } catch (err) {
+      console.warn('[generate] what_if skipped:', err.message);
+    }
+
+    // Update memoir.json with whatIf
+    memoirData.whatIf = whatIf;
     fs.writeFileSync(
       path.join(sessionDir, 'memoir.json'),
       JSON.stringify(memoirData, null, 2),

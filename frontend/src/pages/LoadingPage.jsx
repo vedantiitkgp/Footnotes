@@ -19,6 +19,11 @@ export default function LoadingPage() {
   const navigate      = useNavigate();
   const { state, dispatch } = useMemoir();
 
+  // Tag context with this session so MemoirPage knows the data belongs here
+  useEffect(() => {
+    if (sessionId) dispatch({ type: 'SET_SESSION', payload: sessionId });
+  }, [sessionId]);
+
   const sseUrl = sessionId ? `/api/generate/${sessionId}` : null;
 
   useSSE(sseUrl, {
@@ -33,6 +38,8 @@ export default function LoadingPage() {
     audio: (data) => dispatch({ type: 'SET_AUDIO', payload: data.url }),
 
     stats: (data) => dispatch({ type: 'SET_STATS', payload: data }),
+
+    what_if: (data) => dispatch({ type: 'SET_WHAT_IF', payload: data.items }),
 
     complete: () => {
       dispatch({ type: 'SET_COMPLETE' });

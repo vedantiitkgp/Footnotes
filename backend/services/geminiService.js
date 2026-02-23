@@ -42,16 +42,19 @@ export async function analyzePhotos(photoPaths) {
   const sample     = photoPaths.slice(0, 5);
   const imageParts = sample.map(fileToInlinePart);
   const promptPart = {
-    text: `You are analyzing travel photos for a memoir book.
-Examine the photos and return ONLY valid JSON:
+    text: `You are analyzing travel photos for a richly detailed memoir book.
+Examine ALL the photos carefully and return ONLY valid JSON:
 {
-  "locations": ["place names / cities / countries detected"],
-  "timeline":  ["chronological events/scenes from photos"],
-  "moods":     ["emotional tones: wonder, solitude, joy, adventure, etc."],
-  "gaps":      ["2-3 narrative gaps — moments not shown that would enrich the story"],
-  "days":      <estimated trip length as integer>
+  "locations":  ["short, geocodable place names — city and country/state format ONLY — e.g. 'Paris, France', 'East Bay, California', 'Santorini, Greece', 'Marrakech, Morocco'. NO descriptive phrases, NO 'the rolling hills of', NO adjectives — just the place name itself"],
+  "landmarks":  ["exact landmark/building/site names visible — e.g. 'Eiffel Tower', 'Blue Mosque', 'Piazza Navona'"],
+  "people":     ["vivid descriptions of people visible — apparent role, age range, emotion, clothing — e.g. 'elderly chai vendor in saffron turban', 'laughing schoolchildren in uniforms', 'weathered fisherman mending nets'. Never name individuals."],
+  "signText":   ["readable text from signs, menus, storefronts, street signs — e.g. 'Rue du Bac', 'Grand Bazaar', 'Café de Flore'"],
+  "timeline":   ["chronological events/scenes from photos"],
+  "moods":      ["emotional tones: wonder, solitude, joy, adventure, etc."],
+  "gaps":       ["2-3 narrative gaps — moments not shown that would enrich the story"],
+  "days":       <estimated trip length as integer>
 }
-Be concise but specific.`,
+Be specific and evocative. Prioritize unique, memorable details over generic ones.`,
   };
 
   return withRetry(async () => {
@@ -72,6 +75,41 @@ Be concise but specific.`,
 }
 
 /**
+ * Generate 3 funny "What If?" questions + answers about the trip.
+ */
+export async function generateWhatIf({ locations, essay }) {
+  const snippet = essay.slice(0, 600);
+  const prompt = `You're a dry, witty travel humorist. Based on this memoir about ${locations.join(', ')}:
+
+"${snippet}"
+
+Generate exactly 3 absurd "What if?" hypotheticals specific to THIS trip — reference the actual places, people, or events mentioned.
+
+Rules:
+- The ANSWER must NOT repeat, restate, or reference the question in any way — it stands alone
+- Each answer should be 2-4 sentences, building to a funny or unexpected conclusion
+- Dry wit, specific details, unexpected consequences — no generic travel jokes
+- The question and answer should feel like two completely separate, surprising pieces
+
+Return ONLY valid JSON:
+[
+  { "question": "What if...", "answer": "..." },
+  { "question": "What if...", "answer": "..." },
+  { "question": "What if...", "answer": "..." }
+]`;
+
+  return withRetry(async () => {
+    const response = await getAI().models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ parts: [{ text: prompt }] }],
+    });
+    const text  = response.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    try { return JSON.parse(clean); } catch { return []; }
+  });
+}
+
+/**
  * Stream essay generation.
  * Calls `onChunk(text)` for each piece. Returns full essay.
  */
@@ -87,6 +125,12 @@ export async function streamEssay({ description, style, analysis, photoPaths, on
   // Only 2 sample photos in the essay prompt (text-only is sufficient after analysis)
   const samplePhotos = photoPaths.slice(0, 2).map(fileToInlinePart);
 
+  const landmarkLine   = analysis.landmarks?.length    ? `- Landmarks seen: ${analysis.landmarks.join(', ')}` : '';
+  const peopleLine     = analysis.people?.length       ? `- People encountered: ${analysis.people.join('; ')}` : '';
+  const signLine       = analysis.signText?.length     ? `- Visible text/signs: ${analysis.signText.join(', ')}` : '';
+  const gpsLine        = analysis.gpsLocations?.length ? `- GPS-confirmed locations (high accuracy): ${analysis.gpsLocations.join(', ')}` : '';
+  const timelineLine   = analysis.photoTimeline        ? `- Actual photo dates: ${analysis.photoTimeline}` : '';
+
   const prompt = `${guide}
 
 TRIP DETAILS:
@@ -94,12 +138,18 @@ ${description}
 
 ANALYSIS:
 - Locations: ${analysis.locations?.join(', ') || 'unknown'}
+${gpsLine}
+${landmarkLine}
+${peopleLine}
+${signLine}
+${timelineLine}
 - Timeline: ${analysis.timeline?.join(' → ') || ''}
 - Moods: ${analysis.moods?.join(', ') || ''}
 - Narrative gaps to fill: ${analysis.gaps?.join('; ') || ''}
 
 Write a travel memoir essay of 700–1000 words with 3–4 chapters.
 Use "## Chapter Title" for each heading.
+Weave in specific landmark names, vivid people descriptions, and any sign/place text naturally — don't list them, let them emerge in the prose.
 Write the actual essay — no placeholders.`;
 
   return withRetry(async () => {

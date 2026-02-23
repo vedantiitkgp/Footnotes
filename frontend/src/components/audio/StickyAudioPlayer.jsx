@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import './StickyAudioPlayer.css';
 
-export default function StickyAudioPlayer({ audioUrl, onTimeUpdate }) {
+export default function StickyAudioPlayer({ audioUrl, onTimeUpdate, onPlayStateChange }) {
   const audioRef  = useRef(null);
   const [playing, setPlaying]   = useState(false);
   const [current, setCurrent]   = useState(0);
@@ -29,9 +29,9 @@ export default function StickyAudioPlayer({ audioUrl, onTimeUpdate }) {
       onTimeUpdate?.(el.currentTime, el.duration || 0);
     };
     const onMeta     = () => setDuration(el.duration);
-    const onEnded    = () => setPlaying(false);
-    const onPlay     = () => setPlaying(true);
-    const onPause    = () => setPlaying(false);
+    const onEnded    = () => { setPlaying(false); onPlayStateChange?.(false); };
+    const onPlay     = () => { setPlaying(true);  onPlayStateChange?.(true);  };
+    const onPause    = () => { setPlaying(false); onPlayStateChange?.(false); };
 
     el.addEventListener('timeupdate', onTime);
     el.addEventListener('loadedmetadata', onMeta);

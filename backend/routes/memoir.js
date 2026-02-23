@@ -76,6 +76,7 @@ router.get('/:sessionId', (req, res) => {
     stats: memoirData.stats,
     postcards,
     audioUrl,
+    whatIf: memoirData.whatIf || [],
     createdAt: memoirData.createdAt,
   });
 });

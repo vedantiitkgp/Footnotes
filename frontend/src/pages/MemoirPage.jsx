@@ -2,11 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useMemoir } from '../context/MemoirContext.jsx';
+import { useAmbientSound } from '../hooks/useAmbientSound.js';
 import EssayRenderer from '../components/memoir/EssayRenderer.jsx';
 import RouteMap from '../components/memoir/RouteMap.jsx';
 import TripStatsCard from '../components/memoir/TripStatsCard.jsx';
 import StickyAudioPlayer from '../components/audio/StickyAudioPlayer.jsx';
 import ExportPanel from '../components/memoir/ExportPanel.jsx';
+import WhatIfSection from '../components/memoir/WhatIfSection.jsx';
 import './MemoirPage.css';
 
 const PAGE_TRANSITION = {
@@ -21,31 +23,48 @@ export default function MemoirPage() {
   const { state, dispatch } = useMemoir();
   const memoirRef     = useRef(null);
   const essayRef      = useRef(null);
-  // Start hydrating immediately if context is empty (avoids flash of "No memoir")
-  const needsHydration = !state.essay && !state.isComplete && !!sessionId;
-  const [hydrating, setHydrating] = useState(needsHydration);
+  // Start hydrating if this session's data isn't already in context
+  const alreadyLoaded = state.sessionId === sessionId && state.isComplete;
+  const [hydrating, setHydrating] = useState(!!sessionId && !alreadyLoaded);
   const [hydrateFailed, setHydrateFailed] = useState(false);
 
-  const { essay, structure, postcards, audioUrl, stats } = state;
+  const { essay, structure, postcards, audioUrl, stats, whatIf } = state;
   const locations  = structure?.locations || [];
   const photoFiles = state.stats?.photoFiles  || [];
+
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  useAmbientSound(locations, audioPlaying);
 
   // Reset word/line highlights when audio changes (new memoir or URL change)
   useEffect(() => { essayRef.current?.reset(); }, [audioUrl]);
 
-  // If context is empty (e.g. page refresh or shared link), fetch from API
+  // Track which sessionId is currently loaded so we can detect session switches
+  const loadedSessionRef = useRef(
+    (state.sessionId === sessionId && state.isComplete) ? sessionId : null
+  );
+
+  // Fetch memoir from API when: first load (refresh/share), or switching to a different session
   useEffect(() => {
-    if (essay || state.isComplete) return;
     if (!sessionId) return;
+    if (loadedSessionRef.current === sessionId) return; // already have this session's data
+
+    // Reset any stale context from a different session
+    dispatch({ type: 'RESET' });
+    setHydrating(true);
+    setHydrateFailed(false);
+
     fetch(`/api/memoir/${sessionId}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
+        loadedSessionRef.current = sessionId;
         if (!data) { setHydrateFailed(true); return; }
+        dispatch({ type: 'SET_SESSION', payload: sessionId });
         dispatch({ type: 'APPEND_TEXT', payload: data.essay });
         dispatch({ type: 'SET_STRUCTURE', payload: data.structure });
         data.postcards.forEach((p) => dispatch({ type: 'ADD_POSTCARD', payload: p }));
         if (data.audioUrl) dispatch({ type: 'SET_AUDIO', payload: data.audioUrl });
         if (data.stats) dispatch({ type: 'SET_STATS', payload: data.stats });
+        if (data.whatIf?.length) dispatch({ type: 'SET_WHAT_IF', payload: data.whatIf });
         dispatch({ type: 'SET_COMPLETE' });
       })
       .catch(() => setHydrateFailed(true))
@@ -75,6 +94,7 @@ export default function MemoirPage() {
         <StickyAudioPlayer
           audioUrl={audioUrl}
           onTimeUpdate={(t, d) => essayRef.current?.highlight(t, d)}
+          onPlayStateChange={setAudioPlaying}
         />
       )}
 
@@ -108,7 +128,7 @@ export default function MemoirPage() {
         {locations.length > 0 && (
           <section className="memoir-section">
             <h2 className="memoir-section__heading">Your route</h2>
-            <RouteMap locations={locations} />
+            <RouteMap locations={locations} essay={essay} />
           </section>
         )}
 
@@ -123,6 +143,13 @@ export default function MemoirPage() {
             locations={locations}
           />
         </section>
+
+        {/* What If */}
+        {whatIf?.length > 0 && (
+          <section className="memoir-section">
+            <WhatIfSection items={whatIf} />
+          </section>
+        )}
 
         {/* Footer */}
         <footer className="memoir-footer">

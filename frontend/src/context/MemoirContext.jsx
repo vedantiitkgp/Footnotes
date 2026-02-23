@@ -7,6 +7,7 @@ const initialState = {
   postcards: [],      // [{ index, url }]
   audioUrl: null,
   stats: null,        // { locations, days, photoCount, wordCount }
+  whatIf: [],         // [{ question, answer }]
   progress: { stage: '', percent: 0, message: '' },
   isComplete: false,
   error: null,
@@ -20,6 +21,7 @@ function reducer(state, action) {
     case 'ADD_POSTCARD':     return { ...state, postcards: [...state.postcards, action.payload] };
     case 'SET_AUDIO':        return { ...state, audioUrl: action.payload };
     case 'SET_STATS':        return { ...state, stats: action.payload };
+    case 'SET_WHAT_IF':      return { ...state, whatIf: action.payload };
     case 'SET_PROGRESS':     return { ...state, progress: action.payload };
     case 'SET_COMPLETE':     return { ...state, isComplete: true };
     case 'SET_ERROR':        return { ...state, error: action.payload };
