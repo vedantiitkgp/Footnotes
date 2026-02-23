@@ -8,6 +8,17 @@ export default function StickyAudioPlayer({ audioUrl }) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume]     = useState(0.8);
 
+  // When URL changes, force the audio element to reload and reset UI state
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.pause();
+    el.load();
+    setPlaying(false);
+    setCurrent(0);
+    setDuration(0);
+  }, [audioUrl]);
+
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
