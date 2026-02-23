@@ -96,4 +96,28 @@ router.get('/:sessionId', (req, res) => {
   });
 });
 
+// DELETE /api/memoir/:sessionId — remove session + all generated assets from disk
+router.delete('/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+
+  // Basic validation — sessionId should be a UUID-like string, no path traversal
+  if (!/^[\w-]{8,}$/.test(sessionId)) {
+    return res.status(400).json({ error: 'Invalid sessionId' });
+  }
+
+  const sessionDir = getSessionDir(sessionId);
+
+  if (!fs.existsSync(sessionDir)) {
+    return res.status(404).json({ error: 'Session not found' });
+  }
+
+  try {
+    fs.rmSync(sessionDir, { recursive: true, force: true });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[memoir] DELETE failed:', err.message);
+    res.status(500).json({ error: 'Failed to delete session' });
+  }
+});
+
 export default router;

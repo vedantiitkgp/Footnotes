@@ -46,8 +46,13 @@ export default function HistoryPage() {
   }, []);
 
   function handleRemove(sessionId) {
+    // Optimistically remove from UI and localStorage immediately
     removeFromHistory(sessionId);
     setEntries((prev) => prev.filter((e) => e.sessionId !== sessionId));
+    // Also delete from disk so it won't reappear on refresh
+    fetch(`/api/memoir/${sessionId}`, { method: 'DELETE' }).catch(() => {
+      // Silently ignore — localStorage entry is already gone so it won't show
+    });
   }
 
   return (
