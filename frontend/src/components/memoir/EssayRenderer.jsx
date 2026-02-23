@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, forwardRef, useImperativeHandle } from 'react';
 import PostcardCard from './PostcardCard.jsx';
 import './EssayRenderer.css';
 
@@ -32,8 +32,94 @@ function extractPullQuote(para) {
   return sentences.find((s) => s.length > 65 && PULL_KEYWORDS.test(s)) || null;
 }
 
-export default function EssayRenderer({ essay, postcards = [], photoFiles = [], sessionId, locations = [] }) {
-  const chapters = useMemo(() => parseEssay(essay), [essay]);
+const EssayRenderer = forwardRef(function EssayRenderer(
+  { essay, postcards = [], photoFiles = [], sessionId, locations = [] },
+  ref,
+) {
+  const rendererRef    = useRef(null);
+  const prevWordRef    = useRef(-1);
+  const prevParaRef    = useRef(-1);
+
+  // Pre-compute chapters with global word + paragraph indices
+  const { chapters, totalWords, spokenWords } = useMemo(() => {
+    const raw = parseEssay(essay);
+    let gParaIdx = 0;
+    let gWordIdx = 0;
+
+    const chapters = raw.map((chapter) => ({
+      title: chapter.title,
+      paragraphs: chapter.paragraphs.map((para) => {
+        const paraIdx = gParaIdx++;
+        const words   = para.split(/\s+/).filter(Boolean);
+        const wordsWithIndex = words.map((word) => ({ word, wi: gWordIdx++ }));
+        return { paraIdx, wordsWithIndex, raw: para };
+      }),
+    }));
+
+    const totalWords  = gWordIdx;
+    // TTS reads first 4000 chars — estimate how many words that covers
+    const spokenWords = essay.slice(0, 4000).split(/\s+/).filter(Boolean).length;
+    return { chapters, totalWords, spokenWords };
+  }, [essay]);
+
+  // Expose imperative API so MemoirPage can drive highlighting without prop re-renders
+  useImperativeHandle(ref, () => ({
+    highlight(audioTime, audioDuration) {
+      if (!audioDuration || !rendererRef.current || totalWords === 0) return;
+
+      const wordIdx = Math.min(
+        Math.floor((audioTime / audioDuration) * spokenWords),
+        totalWords - 1,
+      );
+      if (wordIdx < 0 || wordIdx === prevWordRef.current) return;
+
+      const container = rendererRef.current;
+
+      // Swap word highlight
+      if (prevWordRef.current >= 0) {
+        container.querySelector(`[data-wi="${prevWordRef.current}"]`)
+          ?.classList.remove('word--active');
+      }
+      const wordEl = container.querySelector(`[data-wi="${wordIdx}"]`);
+      wordEl?.classList.add('word--active');
+      prevWordRef.current = wordIdx;
+
+      // Swap paragraph highlight + maybe scroll
+      const paraEl = wordEl?.closest('[data-pi]');
+      if (paraEl) {
+        const pIdx = Number(paraEl.dataset.pi);
+        if (pIdx !== prevParaRef.current) {
+          if (prevParaRef.current >= 0) {
+            container.querySelector(`[data-pi="${prevParaRef.current}"]`)
+              ?.classList.remove('para--active');
+          }
+          paraEl.classList.add('para--active');
+          prevParaRef.current = pIdx;
+
+          // Scroll only if paragraph is outside the visible area
+          const rect = paraEl.getBoundingClientRect();
+          if (rect.top < 80 || rect.bottom > window.innerHeight - 80) {
+            paraEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }
+    },
+
+    reset() {
+      const container = rendererRef.current;
+      if (!container) return;
+      if (prevWordRef.current >= 0) {
+        container.querySelector(`[data-wi="${prevWordRef.current}"]`)
+          ?.classList.remove('word--active');
+        prevWordRef.current = -1;
+      }
+      if (prevParaRef.current >= 0) {
+        container.querySelector(`[data-pi="${prevParaRef.current}"]`)
+          ?.classList.remove('para--active');
+        prevParaRef.current = -1;
+      }
+    },
+  }), [spokenWords, totalWords]);
 
   // Build interleaved image list (postcards take priority, then photos)
   const allImages = [
@@ -49,7 +135,6 @@ export default function EssayRenderer({ essay, postcards = [], photoFiles = [], 
     return allImages[ci % allImages.length] || null;
   }
 
-  // Pick location for a postcard: cycle through detected locations
   function getLocation(postcardIndex) {
     if (!locations.length) return 'the journey';
     return locations[postcardIndex % locations.length];
@@ -64,10 +149,12 @@ export default function EssayRenderer({ essay, postcards = [], photoFiles = [], 
   }
 
   return (
-    <div className="essay-renderer">
+    <div className="essay-renderer" ref={rendererRef}>
       {chapters.map((chapter, ci) => {
         const image        = getImageForChapter(ci);
-        const pullQuoteIdx = chapter.paragraphs.findIndex((p) => extractPullQuote(p) !== null);
+        const pullQuoteIdx = chapter.paragraphs.findIndex(
+          ({ raw }) => extractPullQuote(raw) !== null,
+        );
 
         return (
           <section key={ci} className="essay-chapter">
@@ -80,23 +167,26 @@ export default function EssayRenderer({ essay, postcards = [], photoFiles = [], 
               </div>
             )}
 
-            {chapter.paragraphs.map((para, pi) => {
-              const pullQuote = extractPullQuote(para);
+            {chapter.paragraphs.map(({ paraIdx, wordsWithIndex, raw }, pi) => {
+              const pullQuote = extractPullQuote(raw);
               const showPull  = pi === pullQuoteIdx && pullQuote;
               return (
-                <React.Fragment key={pi}>
+                <React.Fragment key={paraIdx}>
                   {showPull && (
                     <blockquote className="essay-pullquote">
                       <span className="essay-pullquote__mark">"</span>
                       {pullQuote}
                     </blockquote>
                   )}
-                  <p className="essay-paragraph">{para}</p>
+                  <p className="essay-paragraph" data-pi={paraIdx}>
+                    {wordsWithIndex.map(({ word, wi }) => (
+                      <span key={wi} data-wi={wi}>{word}{' '}</span>
+                    ))}
+                  </p>
                 </React.Fragment>
               );
             })}
 
-            {/* After each chapter (except last): image or postcard */}
             {image && ci < chapters.length - 1 && (
               image.type === 'postcard' ? (
                 <PostcardCard
@@ -117,4 +207,6 @@ export default function EssayRenderer({ essay, postcards = [], photoFiles = [], 
       })}
     </div>
   );
-}
+});
+
+export default EssayRenderer;

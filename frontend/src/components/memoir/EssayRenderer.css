@@ -114,3 +114,20 @@
 }
 
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── Audio sync highlighting ── */
+.essay-paragraph span {
+  transition: background 0.1s, color 0.1s;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.word--active {
+  background: rgba(201, 168, 76, 0.25);
+  color: var(--accent-cream);
+}
+
+.para--active {
+  color: var(--accent-cream);
+  transition: color 0.4s;
+}

@@ -20,6 +20,7 @@ export default function MemoirPage() {
   const navigate      = useNavigate();
   const { state, dispatch } = useMemoir();
   const memoirRef     = useRef(null);
+  const essayRef      = useRef(null);
   // Start hydrating immediately if context is empty (avoids flash of "No memoir")
   const needsHydration = !state.essay && !state.isComplete && !!sessionId;
   const [hydrating, setHydrating] = useState(needsHydration);
@@ -28,6 +29,9 @@ export default function MemoirPage() {
   const { essay, structure, postcards, audioUrl, stats } = state;
   const locations  = structure?.locations || [];
   const photoFiles = state.stats?.photoFiles  || [];
+
+  // Reset word/line highlights when audio changes (new memoir or URL change)
+  useEffect(() => { essayRef.current?.reset(); }, [audioUrl]);
 
   // If context is empty (e.g. page refresh or shared link), fetch from API
   useEffect(() => {
@@ -67,7 +71,12 @@ export default function MemoirPage() {
   return (
     <motion.div className="memoir-page" {...PAGE_TRANSITION}>
       {/* Sticky Audio Player */}
-      {audioUrl && <StickyAudioPlayer audioUrl={audioUrl} />}
+      {audioUrl && (
+        <StickyAudioPlayer
+          audioUrl={audioUrl}
+          onTimeUpdate={(t, d) => essayRef.current?.highlight(t, d)}
+        />
+      )}
 
       {/* Hero */}
       <header className="memoir-hero">
@@ -106,6 +115,7 @@ export default function MemoirPage() {
         {/* Essay */}
         <section className="memoir-section memoir-section--essay">
           <EssayRenderer
+            ref={essayRef}
             essay={essay}
             postcards={postcards}
             photoFiles={photoFiles}
