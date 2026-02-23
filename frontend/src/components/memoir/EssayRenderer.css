@@ -116,7 +116,8 @@
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
 /* ── Audio sync highlighting ── */
-.essay-paragraph span {
+.essay-paragraph span,
+.essay-chapter__title span {
   transition: background 0.1s, color 0.1s;
   border-radius: 3px;
   padding: 0 1px;

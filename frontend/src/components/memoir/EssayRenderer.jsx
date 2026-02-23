@@ -41,20 +41,31 @@ const EssayRenderer = forwardRef(function EssayRenderer(
   const prevParaRef    = useRef(-1);
 
   // Pre-compute chapters with global word + paragraph indices
+  // Title words are indexed too so the highlight passes through headings smoothly
   const { chapters, totalWords, spokenWords } = useMemo(() => {
     const raw = parseEssay(essay);
     let gParaIdx = 0;
     let gWordIdx = 0;
 
-    const chapters = raw.map((chapter) => ({
-      title: chapter.title,
-      paragraphs: chapter.paragraphs.map((para) => {
+    const chapters = raw.map((chapter) => {
+      // Index heading words so highlight doesn't skip them
+      let titleParaIdx = null;
+      let titleWordsWithIndex = [];
+      if (chapter.title) {
+        titleParaIdx = gParaIdx++;
+        titleWordsWithIndex = chapter.title.split(/\s+/).filter(Boolean)
+          .map((word) => ({ word, wi: gWordIdx++ }));
+      }
+
+      const paragraphs = chapter.paragraphs.map((para) => {
         const paraIdx = gParaIdx++;
         const words   = para.split(/\s+/).filter(Boolean);
         const wordsWithIndex = words.map((word) => ({ word, wi: gWordIdx++ }));
         return { paraIdx, wordsWithIndex, raw: para };
-      }),
-    }));
+      });
+
+      return { title: chapter.title, titleParaIdx, titleWordsWithIndex, paragraphs };
+    });
 
     const totalWords  = gWordIdx;
     // TTS reads first 4000 chars — estimate how many words that covers
@@ -163,7 +174,11 @@ const EssayRenderer = forwardRef(function EssayRenderer(
                 <span className="essay-chapter__number">
                   {String(ci + 1).padStart(2, '0')}
                 </span>
-                <h2 className="essay-chapter__title">{chapter.title}</h2>
+                <h2 className="essay-chapter__title" data-pi={chapter.titleParaIdx}>
+                  {chapter.titleWordsWithIndex.map(({ word, wi }) => (
+                    <span key={wi} data-wi={wi}>{word}{' '}</span>
+                  ))}
+                </h2>
               </div>
             )}
 
