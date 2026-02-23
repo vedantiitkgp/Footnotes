@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSSE } from '../hooks/useSSE.js';
 import { useMemoir } from '../context/MemoirContext.jsx';
+import { saveToHistory } from '../utils/memoirHistory.js';
 import ProgressBar from '../components/ui/ProgressBar.jsx';
 import StageIndicator from '../components/ui/StageIndicator.jsx';
 import './LoadingPage.css';
@@ -35,6 +36,9 @@ export default function LoadingPage() {
 
     complete: () => {
       dispatch({ type: 'SET_COMPLETE' });
+      const title = state.structure?.chapters?.[0]?.title || 'A Journey in Words';
+      const locations = state.structure?.locations || [];
+      saveToHistory(sessionId, title, locations);
       navigate(`/memoir/${sessionId}`, { replace: true });
     },
 

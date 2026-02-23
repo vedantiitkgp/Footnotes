@@ -84,12 +84,14 @@ router.get('/:sessionId', async (req, res) => {
     // ── Stage 3: Imagen postcards (70 → 85%) ────────────────────────────────
     sendEvent(res, 'progress', { stage: 'postcards', percent: 72, message: 'Generating AI travel postcards…' });
 
+    const collectedPostcards = [];
     await generateAllPostcards({
       gaps: analysis.gaps || [],
       locations: analysis.locations || [],
       assetsDir,
       onPostcard: ({ index, filename }) => {
         const url = `/api/assets/${sessionId}/${filename}`;
+        collectedPostcards.push({ index, filename });
         sendEvent(res, 'postcard', { index, url });
         sendEvent(res, 'progress', {
           stage: 'postcards',
@@ -112,12 +114,30 @@ router.get('/:sessionId', async (req, res) => {
 
     // ── Stage 5: Stats + complete ────────────────────────────────────────────
     const wordCount = fullEssay.split(/\s+/).filter(Boolean).length;
-    sendEvent(res, 'stats', {
+    const stats = {
       locations: analysis.locations?.length || 0,
       days: analysis.days || 0,
       photoCount: photoFiles.length,
       wordCount,
-    });
+    };
+    sendEvent(res, 'stats', stats);
+
+    // Save memoir.json to session dir for persistence
+    const memoirData = {
+      sessionId,
+      createdAt: new Date().toISOString(),
+      essay: fullEssay,
+      structure: { locations: analysis.locations || [], chapters: chapterTitles },
+      stats,
+      postcards: collectedPostcards,
+      audioFilename: audioFilename || null,
+      description: session.description,
+      style: session.style || 'literary',
+    };
+    fs.writeFileSync(
+      path.join(sessionDir, 'memoir.json'),
+      JSON.stringify(memoirData, null, 2),
+    );
 
     sendEvent(res, 'progress', { stage: 'complete', percent: 100, message: 'Your memoir is ready!' });
     sendEvent(res, 'complete', { sessionId });

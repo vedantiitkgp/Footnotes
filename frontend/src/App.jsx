@@ -7,6 +7,7 @@ const LandingPage  = lazy(() => import('./pages/LandingPage.jsx'));
 const UploadPage   = lazy(() => import('./pages/UploadPage.jsx'));
 const LoadingPage  = lazy(() => import('./pages/LoadingPage.jsx'));
 const MemoirPage   = lazy(() => import('./pages/MemoirPage.jsx'));
+const HistoryPage  = lazy(() => import('./pages/HistoryPage.jsx'));
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -17,6 +18,7 @@ function AnimatedRoutes() {
         <Route path="/upload"                element={<UploadPage />} />
         <Route path="/loading/:sessionId"    element={<LoadingPage />} />
         <Route path="/memoir/:sessionId"     element={<MemoirPage />} />
+        <Route path="/history"              element={<HistoryPage />} />
       </Routes>
     </AnimatePresence>
   );

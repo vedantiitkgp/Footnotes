@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useMemoir } from '../context/MemoirContext.jsx';
@@ -18,14 +18,45 @@ const PAGE_TRANSITION = {
 export default function MemoirPage() {
   const { sessionId } = useParams();
   const navigate      = useNavigate();
-  const { state }     = useMemoir();
+  const { state, dispatch } = useMemoir();
   const memoirRef     = useRef(null);
+  // Start hydrating immediately if context is empty (avoids flash of "No memoir")
+  const needsHydration = !state.essay && !state.isComplete && !!sessionId;
+  const [hydrating, setHydrating] = useState(needsHydration);
+  const [hydrateFailed, setHydrateFailed] = useState(false);
 
   const { essay, structure, postcards, audioUrl, stats } = state;
   const locations  = structure?.locations || [];
   const photoFiles = state.stats?.photoFiles  || [];
 
-  if (!essay && !state.isComplete) {
+  // If context is empty (e.g. page refresh or shared link), fetch from API
+  useEffect(() => {
+    if (essay || state.isComplete) return;
+    if (!sessionId) return;
+    fetch(`/api/memoir/${sessionId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) { setHydrateFailed(true); return; }
+        dispatch({ type: 'APPEND_TEXT', payload: data.essay });
+        dispatch({ type: 'SET_STRUCTURE', payload: data.structure });
+        data.postcards.forEach((p) => dispatch({ type: 'ADD_POSTCARD', payload: p }));
+        if (data.audioUrl) dispatch({ type: 'SET_AUDIO', payload: data.audioUrl });
+        if (data.stats) dispatch({ type: 'SET_STATS', payload: data.stats });
+        dispatch({ type: 'SET_COMPLETE' });
+      })
+      .catch(() => setHydrateFailed(true))
+      .finally(() => setHydrating(false));
+  }, [sessionId]);
+
+  if (hydrating) {
+    return (
+      <div className="memoir-empty">
+        <p>Loading your memoir…</p>
+      </div>
+    );
+  }
+
+  if (hydrateFailed || (!essay && !state.isComplete)) {
     return (
       <div className="memoir-empty">
         <p>No memoir found. <button onClick={() => navigate('/upload')}>Create one →</button></p>

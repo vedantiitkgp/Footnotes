@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DropZone from '../components/upload/DropZone.jsx';
 import PhotoGrid from '../components/upload/PhotoGrid.jsx';
@@ -67,6 +67,9 @@ export default function UploadPage() {
           Upload your travel photos and describe your journey.<br />
           Our AI will craft a literary essay with a voiceover and map.
         </p>
+        <Link to="/history" className="upload-page__history-link">
+          My past memoirs →
+        </Link>
       </div>
 
       <form className="upload-form" onSubmit={handleSubmit}>

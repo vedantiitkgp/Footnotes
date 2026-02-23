@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import uploadRouter from './routes/upload.js';
 import generateRouter from './routes/generate.js';
 import assetsRouter from './routes/assets.js';
+import memoirRouter from './routes/memoir.js';
 import { startCleanupCron } from './services/sessionStore.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use('/api/upload', uploadRouter);
 app.use('/api/generate', generateRouter);
 app.use('/api/assets', assetsRouter);
+app.use('/api/memoir', memoirRouter);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
