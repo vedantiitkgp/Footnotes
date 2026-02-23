@@ -6,6 +6,7 @@ const initialState = {
   structure: null,    // { chapters, locations }
   postcards: [],      // [{ index, url }]
   audioUrl: null,
+  photoUrls: [],      // original uploaded photo URLs
   stats: null,        // { locations, days, photoCount, wordCount }
   whatIf: [],         // [{ question, answer }]
   progress: { stage: '', percent: 0, message: '' },
@@ -21,6 +22,7 @@ function reducer(state, action) {
     case 'ADD_POSTCARD':     return { ...state, postcards: [...state.postcards, action.payload] };
     case 'SET_AUDIO':        return { ...state, audioUrl: action.payload };
     case 'SET_STATS':        return { ...state, stats: action.payload };
+    case 'SET_PHOTO_URLS':   return { ...state, photoUrls: action.payload };
     case 'SET_WHAT_IF':      return { ...state, whatIf: action.payload };
     case 'SET_PROGRESS':     return { ...state, progress: action.payload };
     case 'SET_COMPLETE':     return { ...state, isComplete: true };

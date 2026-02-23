@@ -41,6 +41,8 @@ export default function LoadingPage() {
 
     what_if: (data) => dispatch({ type: 'SET_WHAT_IF', payload: data.items }),
 
+    photos: (data) => dispatch({ type: 'SET_PHOTO_URLS', payload: data.urls }),
+
     complete: () => {
       dispatch({ type: 'SET_COMPLETE' });
       const title = state.structure?.chapters?.[0]?.title || 'A Journey in Words';

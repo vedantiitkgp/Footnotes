@@ -1,6 +1,8 @@
 /* ── Immersive full-bleed wrapper ── */
 .route-map {
   position: relative;
+  /* Contain Leaflet's internal z-indexes so they don't escape onto the page */
+  isolation: isolate;
   /* Bleed past the container on both sides */
   width: calc(100% + 6rem);
   margin-left: -3rem;

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useMemoir } from '../context/MemoirContext.jsx';
@@ -9,6 +9,7 @@ import TripStatsCard from '../components/memoir/TripStatsCard.jsx';
 import StickyAudioPlayer from '../components/audio/StickyAudioPlayer.jsx';
 import ExportPanel from '../components/memoir/ExportPanel.jsx';
 import WhatIfSection from '../components/memoir/WhatIfSection.jsx';
+import PhotoReel from '../components/memoir/PhotoReel.jsx';
 import './MemoirPage.css';
 
 const PAGE_TRANSITION = {
@@ -28,7 +29,7 @@ export default function MemoirPage() {
   const [hydrating, setHydrating] = useState(!!sessionId && !alreadyLoaded);
   const [hydrateFailed, setHydrateFailed] = useState(false);
 
-  const { essay, structure, postcards, audioUrl, stats, whatIf } = state;
+  const { essay, structure, postcards, audioUrl, stats, whatIf, photoUrls } = state;
   const locations  = structure?.locations || [];
   const photoFiles = state.stats?.photoFiles  || [];
 
@@ -65,6 +66,7 @@ export default function MemoirPage() {
         if (data.audioUrl) dispatch({ type: 'SET_AUDIO', payload: data.audioUrl });
         if (data.stats) dispatch({ type: 'SET_STATS', payload: data.stats });
         if (data.whatIf?.length) dispatch({ type: 'SET_WHAT_IF', payload: data.whatIf });
+        if (data.photoUrls?.length) dispatch({ type: 'SET_PHOTO_URLS', payload: data.photoUrls });
         dispatch({ type: 'SET_COMPLETE' });
       })
       .catch(() => setHydrateFailed(true))
@@ -127,7 +129,7 @@ export default function MemoirPage() {
         {/* Map */}
         {locations.length > 0 && (
           <section className="memoir-section">
-            <h2 className="memoir-section__heading">Your route</h2>
+            <h2 className="memoir-section__heading">Your spots</h2>
             <RouteMap locations={locations} essay={essay} />
           </section>
         )}
@@ -162,6 +164,9 @@ export default function MemoirPage() {
           </button>
         </footer>
       </main>
+
+      {/* Fixed photo reel — always on top, independent of scroll */}
+      <PhotoReel photoUrls={photoUrls} />
     </motion.div>
   );
 }

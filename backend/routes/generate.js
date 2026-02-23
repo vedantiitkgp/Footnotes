@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { getSession, getSessionDir } from '../services/sessionStore.js';
-import { analyzePhotos, streamEssay, generateWhatIf } from '../services/geminiService.js';
+import { analyzePhotos, streamEssay, generateWhatIf, extractLocationsFromEssay } from '../services/geminiService.js';
 import { analyzeWithVision, isVisionEnabled } from '../services/visionService.js';
 import { extractPhotoMetadata, buildExifContext } from '../services/exifService.js';
 import { generateAllPostcards } from '../services/imagenService.js';
@@ -45,6 +45,9 @@ router.get('/:sessionId', async (req, res) => {
 
     const photoFiles = session.photoFiles || fs.readdirSync(photosDir).filter((f) => f !== '.gitkeep');
     const photoPaths = photoFiles.map((f) => path.join(photosDir, f));
+
+    // Send photo URLs immediately so the reel is available on MemoirPage
+    sendEvent(res, 'photos', { urls: photoFiles.map((f) => `/api/assets/${sessionId}/${f}`) });
 
     sendEvent(res, 'progress', { stage: 'analyzing', percent: 12, message: 'Understanding locations and moods…' });
 
@@ -120,29 +123,42 @@ router.get('/:sessionId', async (req, res) => {
 
     // Extract actual chapter titles from completed essay
     const chapterTitles = extractChapterTitles(fullEssay);
+    // Send initial structure immediately so the frontend can start rendering
     sendEvent(res, 'structure', { locations: analysis.locations || [], chapters: chapterTitles });
     sendEvent(res, 'progress', { stage: 'writing', percent: 70, message: 'Essay complete — creating postcards…' });
 
-    // ── Stage 3: Imagen postcards (70 → 85%) ────────────────────────────────
+    // ── Stage 3: Postcards + location extraction in parallel (70 → 85%) ──────
     sendEvent(res, 'progress', { stage: 'postcards', percent: 72, message: 'Generating AI travel postcards…' });
 
     const collectedPostcards = [];
-    await generateAllPostcards({
-      gaps: analysis.gaps || [],
-      locations: analysis.locations || [],
-      assetsDir,
-      onPostcard: ({ index, filename }) => {
-        const url = `/api/assets/${sessionId}/${filename}`;
-        collectedPostcards.push({ index, filename });
-        sendEvent(res, 'postcard', { index, url });
-        sendEvent(res, 'progress', {
-          stage: 'postcards',
-          percent: 72 + (index + 1) * 3,
-          message: `Postcard ${index + 1} created…`,
-        });
-      },
-    });
+    const [essayLocations] = await Promise.all([
+      // Extract all place names from the essay text (runs while postcards generate)
+      extractLocationsFromEssay(fullEssay).catch(() => []),
 
+      generateAllPostcards({
+        gaps: analysis.gaps || [],
+        locations: analysis.locations || [],
+        assetsDir,
+        onPostcard: ({ index, filename }) => {
+          const url = `/api/assets/${sessionId}/${filename}`;
+          collectedPostcards.push({ index, filename });
+          sendEvent(res, 'postcard', { index, url });
+          sendEvent(res, 'progress', {
+            stage: 'postcards',
+            percent: 72 + (index + 1) * 3,
+            message: `Postcard ${index + 1} created…`,
+          });
+        },
+      }),
+    ]);
+
+    // Merge essay-extracted locations with photo-analysis locations (deduplicated)
+    const mergedLocations = [...new Set([...essayLocations, ...(analysis.locations || [])])];
+    analysis.locations = mergedLocations;
+    console.log('[generate] Merged locations:', mergedLocations);
+
+    // Send updated structure with full location list
+    sendEvent(res, 'structure', { locations: mergedLocations, chapters: chapterTitles });
     sendEvent(res, 'progress', { stage: 'postcards', percent: 85, message: 'Postcards done — recording voiceover…' });
 
     // ── Stage 4: TTS voiceover (85 → 95%) ───────────────────────────────────
@@ -175,6 +191,7 @@ router.get('/:sessionId', async (req, res) => {
       audioFilename: audioFilename || null,
       description: session.description,
       style: session.style || 'literary',
+      photoFiles,
     };
     fs.writeFileSync(
       path.join(sessionDir, 'memoir.json'),

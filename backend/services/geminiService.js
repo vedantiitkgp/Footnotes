@@ -75,6 +75,33 @@ Be specific and evocative. Prioritize unique, memorable details over generic one
 }
 
 /**
+ * Extract all location names mentioned in a completed essay.
+ * Returns short geocodable strings like ["Paris, France", "Montmartre, Paris"].
+ */
+export async function extractLocationsFromEssay(essay) {
+  const snippet = essay.slice(0, 5000);
+  const prompt = `Extract every specific place name mentioned in this travel essay.
+Return ONLY a valid JSON array of short, geocodable strings — city + country/state format.
+Include cities, neighborhoods, landmarks, regions, and countries. No duplicates. No descriptions.
+Example: ["Paris, France", "Montmartre, Paris", "Eiffel Tower, Paris", "East Bay, California"]
+
+Essay:
+"${snippet}"
+
+Return ONLY the JSON array.`;
+
+  return withRetry(async () => {
+    const response = await getAI().models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ parts: [{ text: prompt }] }],
+    });
+    const text  = response.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    try { return JSON.parse(clean); } catch { return []; }
+  });
+}
+
+/**
  * Generate 3 funny "What If?" questions + answers about the trip.
  */
 export async function generateWhatIf({ locations, essay }) {

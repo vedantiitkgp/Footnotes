@@ -70,12 +70,27 @@ router.get('/:sessionId', (req, res) => {
     ? `/api/assets/${sessionId}/${memoirData.audioFilename}`
     : null;
 
+  // Prefer saved photoFiles; fall back to scanning the photos dir on disk
+  let photoFiles = memoirData.photoFiles;
+  if (!photoFiles?.length) {
+    const photosDir = path.join(sessionDir, 'photos');
+    try {
+      photoFiles = fs.readdirSync(photosDir).filter(
+        (f) => f !== '.gitkeep' && /\.(jpe?g|png|webp|gif|heic)$/i.test(f)
+      );
+    } catch {
+      photoFiles = [];
+    }
+  }
+  const photoUrls = photoFiles.map((f) => `/api/assets/${sessionId}/${f}`);
+
   res.json({
     essay: memoirData.essay,
     structure: memoirData.structure,
     stats: memoirData.stats,
     postcards,
     audioUrl,
+    photoUrls,
     whatIf: memoirData.whatIf || [],
     createdAt: memoirData.createdAt,
   });

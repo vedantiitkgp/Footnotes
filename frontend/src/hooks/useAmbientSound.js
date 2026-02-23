@@ -140,7 +140,7 @@ export function useAmbientSound(locations, isPlaying) {
     if (ctx.state === 'suspended') ctx.resume();
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 3.0);
+    master.gain.linearRampToValueAtTime(0.40, ctx.currentTime + 3.0);
   }, [isPlaying]);
 
   // Cleanup on unmount

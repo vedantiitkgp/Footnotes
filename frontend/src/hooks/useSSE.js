@@ -43,7 +43,7 @@ export function useSSE(url, handlers, options = {}) {
       };
 
       // Listen for all typed events
-      const EVENTS = ['progress', 'text_chunk', 'structure', 'postcard', 'audio', 'stats', 'what_if', 'complete', 'error'];
+      const EVENTS = ['progress', 'text_chunk', 'structure', 'postcard', 'audio', 'stats', 'what_if', 'photos', 'complete', 'error'];
       EVENTS.forEach((eventType) => {
         es.addEventListener(eventType, (e) => {
           try {
