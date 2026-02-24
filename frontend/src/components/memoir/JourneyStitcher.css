@@ -588,17 +588,28 @@
 
 .stitcher__expense-remove {
   background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.15);
-  font-size: 0.9rem;
+  border: 1px solid transparent;
+  color: rgba(255, 255, 255, 0);
+  font-size: 0.78rem;
   cursor: pointer;
-  padding: 0;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
   margin-left: auto;
-  transition: color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
   line-height: 1;
+  flex-shrink: 0;
 }
 
-.stitcher__expense-remove:hover { color: rgba(240, 80, 80, 0.7); }
+.stitcher__expense-item:hover .stitcher__expense-remove {
+  color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.stitcher__expense-remove:hover {
+  color: rgba(240, 80, 80, 0.9) !important;
+  border-color: rgba(240, 80, 80, 0.3) !important;
+  background: rgba(240, 80, 80, 0.07);
+}
 
 /* ── Expense add form ── */
 .stitcher__expense-form {
@@ -629,7 +640,7 @@
   flex-shrink: 0;
 }
 
-.stitcher__expense-cat {
+.stitcher__expense-cat-sel {
   flex: 1;
   min-width: 90px;
 }

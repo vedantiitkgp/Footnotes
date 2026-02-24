@@ -451,7 +451,7 @@ export default function JourneyStitcher({ sessionId }) {
                                   value={expCurrency} onChange={(e) => setExpCurrency(e.target.value)}>
                                   {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
                                 </select>
-                                <select className="stitcher__input stitcher__select stitcher__expense-cat"
+                                <select className="stitcher__input stitcher__select stitcher__expense-cat-sel"
                                   value={expCategory} onChange={(e) => setExpCategory(e.target.value)}>
                                   {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                                 </select>
