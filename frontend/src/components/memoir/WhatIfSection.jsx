@@ -12,7 +12,7 @@ export default function WhatIfSection({ items }) {
       <div className="whatif__header">
         <span className="whatif__eyebrow">but wait…</span>
         <h2 className="whatif__title">What If?</h2>
-        <p className="whatif__subtitle">Three alternate timelines we'd rather not think about.</p>
+        <p className="whatif__subtitle">Six questions your travel companions are too polite to ask.</p>
       </div>
 
       <div className="whatif__cards">

@@ -102,24 +102,31 @@ Return ONLY the JSON array.`;
 }
 
 /**
- * Generate 3 funny "What If?" questions + answers about the trip.
+ * Generate 6 funny "What If?" questions + answers about the trip.
  */
 export async function generateWhatIf({ locations, essay }) {
-  const snippet = essay.slice(0, 600);
-  const prompt = `You're a dry, witty travel humorist. Based on this memoir about ${locations.join(', ')}:
+  const snippet = essay.slice(0, 900);
+  const prompt = `You're a sharp, funny travel writer — think David Sedaris meets a chaotic group chat. Based on this memoir about ${locations.join(', ')}:
 
 "${snippet}"
 
-Generate exactly 3 absurd "What if?" hypotheticals specific to THIS trip — reference the actual places, people, or events mentioned.
+Generate exactly 6 "What if?" hypotheticals specific to THIS trip. Mix these angles:
+- 2 about specific people or characters mentioned (their quirks, bad decisions, reactions)
+- 2 about specific places or local culture encountered
+- 2 painfully human moments — embarrassing "what if we'd done that differently" scenarios
 
 Rules:
-- The ANSWER must NOT repeat, restate, or reference the question in any way — it stands alone
-- Each answer should be 2-4 sentences, building to a funny or unexpected conclusion
-- Dry wit, specific details, unexpected consequences — no generic travel jokes
-- The question and answer should feel like two completely separate, surprising pieces
+- Dig into the actual names, places, and events from the memoir — nothing generic
+- Questions should sound like something a friend asks over drinks, not a trivia night
+- Answers: 2–3 sentences, punchy, build to a funny or painfully relatable punchline
+- Warm, self-deprecating, occasionally absurd — never mean-spirited
+- Answer must stand completely alone without restating the question
 
-Return ONLY valid JSON:
+Return ONLY valid JSON — exactly 6 objects:
 [
+  { "question": "What if...", "answer": "..." },
+  { "question": "What if...", "answer": "..." },
+  { "question": "What if...", "answer": "..." },
   { "question": "What if...", "answer": "..." },
   { "question": "What if...", "answer": "..." },
   { "question": "What if...", "answer": "..." }
