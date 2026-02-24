@@ -499,6 +499,173 @@
   border-color: rgba(201, 168, 76, 0.65);
 }
 
+/* ── Leg footer (expense + ticket row) ── */
+.stitcher__leg-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.stitcher__leg-add-expense {
+  background: none;
+  border: 1px dashed rgba(201, 168, 76, 0.2);
+  color: rgba(201, 168, 76, 0.5);
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  line-height: 1;
+}
+
+.stitcher__leg-add-expense:hover {
+  border-color: rgba(201, 168, 76, 0.45);
+  color: var(--accent-gold, #c9a84c);
+}
+
+/* ── Expense block ── */
+.stitcher__expenses {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.stitcher__expenses-total {
+  font-size: 0.72rem;
+  color: var(--accent-gold, #c9a84c);
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.stitcher__expense-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stitcher__expense-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+
+.stitcher__expense-cat {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted, #8a8070);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.stitcher__expense-amount {
+  color: var(--text-primary, #f5f0e8);
+  font-family: var(--font-serif, Georgia, serif);
+  flex-shrink: 0;
+}
+
+.stitcher__expense-note {
+  color: var(--text-muted, #8a8070);
+  font-size: 0.72rem;
+  font-style: italic;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stitcher__expense-remove {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.stitcher__expense-remove:hover { color: rgba(240, 80, 80, 0.7); }
+
+/* ── Expense add form ── */
+.stitcher__expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(201, 168, 76, 0.12);
+  border-radius: 8px;
+  margin-top: 0.25rem;
+}
+
+.stitcher__expense-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stitcher__expense-amt {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.stitcher__expense-cur {
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.stitcher__expense-cat {
+  flex: 1;
+  min-width: 90px;
+}
+
+.stitcher__expense-note-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.stitcher__expense-save {
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  color: var(--accent-gold, #c9a84c);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.stitcher__expense-save:hover { background: rgba(201, 168, 76, 0.22); }
+
+.stitcher__expense-cancel {
+  background: none;
+  border: none;
+  color: var(--text-muted, #8a8070);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.35rem 0.4rem;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.stitcher__expense-cancel:hover { color: var(--text-primary, #f5f0e8); }
+
 /* ── Ticket upload (in form) ── */
 .stitcher__ticket-upload {
   display: inline-block;
@@ -558,11 +725,11 @@
   color: rgba(201, 168, 76, 0.6);
   font-size: 0.7rem;
   letter-spacing: 0.06em;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border-radius: 4px;
   cursor: pointer;
   transition: border-color 0.18s, color 0.18s;
-  margin-top: 0.2rem;
+  line-height: 1;
 }
 
 .stitcher__leg-ticket-btn:hover {

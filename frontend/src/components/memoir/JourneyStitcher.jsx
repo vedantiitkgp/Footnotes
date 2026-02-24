@@ -32,6 +32,18 @@ const EXTRA_FIELDS = {
 
 const STITCH_REWARD = 300;
 
+const EXPENSE_CATEGORIES = ['Food', 'Transport', 'Stay', 'Experience', 'Shopping', 'Misc'];
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'SGD', 'AED', 'THB'];
+
+function expenseTotals(expenses = []) {
+  const map = {};
+  expenses.forEach(({ amount, currency }) => {
+    const n = parseFloat(amount) || 0;
+    map[currency] = (map[currency] || 0) + n;
+  });
+  return Object.entries(map).map(([cur, amt]) => `${cur} ${amt.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`).join(' · ');
+}
+
 function getStorageKey(sid) { return `memoir-journeys:${sid}`; }
 function loadJourneys(sid) {
   try { return JSON.parse(localStorage.getItem(getStorageKey(sid)) || '[]'); } catch { return []; }
@@ -221,6 +233,13 @@ export default function JourneyStitcher({ sessionId }) {
   // ── Ticket viewer modal ──
   const [viewingTicket, setViewingTicket] = useState(null); // { data, name }
 
+  // ── Expense state ──
+  const [addingExpenseFor, setAddingExpenseFor] = useState(null); // journey id
+  const [expAmt,      setExpAmt]      = useState('');
+  const [expCurrency, setExpCurrency] = useState('USD');
+  const [expCategory, setExpCategory] = useState('Food');
+  const [expNote,     setExpNote]     = useState('');
+
   useEffect(() => { saveJourneys(sessionId, journeys); }, [journeys, sessionId]);
 
   // ── Add handlers ──
@@ -283,6 +302,29 @@ export default function JourneyStitcher({ sessionId }) {
 
   function cancelEdit() { setEditingId(null); }
   function handleRemove(id) { setJourneys((prev) => prev.filter((j) => j.id !== id)); }
+
+  // ── Expense handlers ──
+  function openExpenseForm(id) {
+    setAddingExpenseFor(id);
+    setExpAmt(''); setExpCurrency('USD'); setExpCategory('Food'); setExpNote('');
+  }
+
+  function handleAddExpense(e, journeyId) {
+    e.preventDefault();
+    const amt = parseFloat(expAmt);
+    if (!amt || amt <= 0) return;
+    const expense = { id: Date.now(), amount: amt, currency: expCurrency, category: expCategory, note: expNote.trim() };
+    setJourneys((prev) => prev.map((j) =>
+      j.id === journeyId ? { ...j, expenses: [...(j.expenses || []), expense] } : j
+    ));
+    setAddingExpenseFor(null);
+  }
+
+  function handleRemoveExpense(journeyId, expenseId) {
+    setJourneys((prev) => prev.map((j) =>
+      j.id === journeyId ? { ...j, expenses: (j.expenses || []).filter((e) => e.id !== expenseId) } : j
+    ));
+  }
 
   // Sorted for display (already sorted on mutation, but ensure on load too)
   const sortedJourneys = [...journeys].sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
@@ -349,40 +391,98 @@ export default function JourneyStitcher({ sessionId }) {
                     />
                   ) : (
                     <>
-                      {datetime && (
-                        <div className="stitcher__leg-datetime">{datetime}</div>
-                      )}
+                      {datetime && <div className="stitcher__leg-datetime">{datetime}</div>}
+
                       <div className="stitcher__leg-route">
                         <span className="stitcher__leg-from">{j.from}</span>
                         <span className="stitcher__leg-arrow">→</span>
                         <span className="stitcher__leg-to">{j.to}</span>
                         <span className="stitcher__leg-type">{t?.label}</span>
                         <div className="stitcher__leg-actions">
-                          <button className="stitcher__leg-edit" onClick={() => startEdit(j)} title="Edit">Edit</button>
-                          <button className="stitcher__leg-remove" onClick={() => handleRemove(j.id)} title="Remove">×</button>
+                          <button className="stitcher__leg-edit" onClick={() => startEdit(j)}>Edit</button>
+                          <button className="stitcher__leg-remove" onClick={() => handleRemove(j.id)}>×</button>
                         </div>
                       </div>
+
                       {Object.entries(j.extras || {}).length > 0 && (
                         <div className="stitcher__leg-extras">
                           {Object.entries(j.extras).map(([k, v]) => {
                             const field = (EXTRA_FIELDS[j.type] || []).find((f) => f.key === k);
                             return (
                               <span key={k} className="stitcher__leg-extra-pill">
-                                <span className="stitcher__leg-extra-key">{field?.label || k}</span>
-                                {v}
+                                <span className="stitcher__leg-extra-key">{field?.label || k}</span>{v}
                               </span>
                             );
                           })}
                         </div>
                       )}
-                      {j.ticket && (
-                        <button
-                          className="stitcher__leg-ticket-btn"
-                          onClick={() => setViewingTicket({ data: j.ticket, name: j.ticketName })}
-                        >
-                          View ticket
-                        </button>
+
+                      {/* Expenses */}
+                      {(j.expenses?.length > 0 || addingExpenseFor === j.id) && (
+                        <div className="stitcher__expenses">
+                          {j.expenses?.length > 0 && (
+                            <>
+                              <div className="stitcher__expenses-total">
+                                {expenseTotals(j.expenses)}
+                              </div>
+                              <ul className="stitcher__expense-list">
+                                {j.expenses.map((exp) => (
+                                  <li key={exp.id} className="stitcher__expense-item">
+                                    <span className="stitcher__expense-cat">{exp.category}</span>
+                                    <span className="stitcher__expense-amount">{exp.currency} {Number(exp.amount).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    {exp.note && <span className="stitcher__expense-note">{exp.note}</span>}
+                                    <button className="stitcher__expense-remove" onClick={() => handleRemoveExpense(j.id, exp.id)}>×</button>
+                                  </li>
+                                ))}
+                              </ul>
+                            </>
+                          )}
+
+                          {addingExpenseFor === j.id && (
+                            <form className="stitcher__expense-form" onSubmit={(e) => handleAddExpense(e, j.id)}>
+                              <div className="stitcher__expense-row">
+                                <input
+                                  className="stitcher__input stitcher__expense-amt"
+                                  type="number" min="0" step="0.01" placeholder="Amount"
+                                  value={expAmt} onChange={(e) => setExpAmt(e.target.value)}
+                                  required autoFocus
+                                />
+                                <select className="stitcher__input stitcher__select stitcher__expense-cur"
+                                  value={expCurrency} onChange={(e) => setExpCurrency(e.target.value)}>
+                                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                                <select className="stitcher__input stitcher__select stitcher__expense-cat"
+                                  value={expCategory} onChange={(e) => setExpCategory(e.target.value)}>
+                                  {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                              </div>
+                              <div className="stitcher__expense-row">
+                                <input
+                                  className="stitcher__input stitcher__expense-note-input"
+                                  type="text" placeholder="Note — optional"
+                                  value={expNote} onChange={(e) => setExpNote(e.target.value)}
+                                />
+                                <button type="submit" className="stitcher__expense-save">Add</button>
+                                <button type="button" className="stitcher__expense-cancel" onClick={() => setAddingExpenseFor(null)}>Cancel</button>
+                              </div>
+                            </form>
+                          )}
+                        </div>
                       )}
+
+                      {/* Footer actions */}
+                      <div className="stitcher__leg-footer">
+                        {addingExpenseFor !== j.id && (
+                          <button className="stitcher__leg-add-expense" onClick={() => openExpenseForm(j.id)}>
+                            + Expense
+                          </button>
+                        )}
+                        {j.ticket && (
+                          <button className="stitcher__leg-ticket-btn" onClick={() => setViewingTicket({ data: j.ticket, name: j.ticketName })}>
+                            View ticket
+                          </button>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
