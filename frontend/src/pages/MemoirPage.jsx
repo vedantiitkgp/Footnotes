@@ -245,7 +245,7 @@ export default function MemoirPage() {
       </main>
 
       {/* Fixed photo reel — always on top, independent of scroll */}
-      <PhotoReel photoUrls={photoUrls} />
+      <PhotoReel photoUrls={photoUrls} sessionId={sessionId} />
     </motion.div>
   );
 }

@@ -60,10 +60,21 @@ function formatDateTime(date, time) {
   return timeStr ? `${dateStr}, ${timeStr}` : dateStr;
 }
 
+// ─── Ticket helpers ──────────────────────────────────────────────────────────
+function readFileAsBase64(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result); // data URL
+    reader.readAsDataURL(file);
+  });
+}
+
 // ─── Shared form ────────────────────────────────────────────────────────────
 function JourneyForm({
   type, from, to, date, time, extras,
+  ticket, ticketName,
   onTypeChange, onFromChange, onToChange, onDateChange, onTimeChange, onExtraChange,
+  onTicketChange,
   onSubmit, onCancel, submitLabel,
 }) {
   const extraFields = EXTRA_FIELDS[type] || [];
@@ -144,6 +155,33 @@ function JourneyForm({
         </>
       )}
 
+      {/* Ticket upload */}
+      <div className="stitcher__section-label">
+        Ticket <span className="stitcher__optional-hint">— PDF or image, optional</span>
+      </div>
+      {ticket ? (
+        <div className="stitcher__ticket-attached">
+          <span className="stitcher__ticket-filename">{ticketName}</span>
+          <button type="button" className="stitcher__ticket-remove" onClick={() => onTicketChange(null, null)}>Remove</button>
+        </div>
+      ) : (
+        <label className="stitcher__ticket-upload">
+          <input
+            type="file"
+            accept="application/pdf,image/*"
+            hidden
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const data = await readFileAsBase64(file);
+              onTicketChange(data, file.name);
+              e.target.value = '';
+            }}
+          />
+          + Attach ticket
+        </label>
+      )}
+
       <div className="stitcher__form-footer">
         <button type="button" className="stitcher__cancel" onClick={onCancel}>Cancel</button>
         <button type="submit" className="stitcher__submit">{submitLabel}</button>
@@ -159,22 +197,29 @@ export default function JourneyStitcher({ sessionId }) {
   const [flash, setFlash]       = useState(null);
 
   // ── Add form ──
-  const [showForm, setShowForm] = useState(false);
-  const [type, setType]         = useState('flight');
-  const [from, setFrom]         = useState('');
-  const [to, setTo]             = useState('');
-  const [date, setDate]         = useState('');
-  const [time, setTime]         = useState('');
-  const [extras, setExtras]     = useState(() => emptyExtras('flight'));
+  const [showForm, setShowForm]   = useState(false);
+  const [type, setType]           = useState('flight');
+  const [from, setFrom]           = useState('');
+  const [to, setTo]               = useState('');
+  const [date, setDate]           = useState('');
+  const [time, setTime]           = useState('');
+  const [extras, setExtras]       = useState(() => emptyExtras('flight'));
+  const [ticket, setTicket]       = useState(null);
+  const [ticketName, setTicketName] = useState('');
 
   // ── Edit state ──
-  const [editingId, setEditingId]   = useState(null);
-  const [editType, setEditType]     = useState('flight');
-  const [editFrom, setEditFrom]     = useState('');
-  const [editTo, setEditTo]         = useState('');
-  const [editDate, setEditDate]     = useState('');
-  const [editTime, setEditTime]     = useState('');
-  const [editExtras, setEditExtras] = useState({});
+  const [editingId, setEditingId]         = useState(null);
+  const [editType, setEditType]           = useState('flight');
+  const [editFrom, setEditFrom]           = useState('');
+  const [editTo, setEditTo]               = useState('');
+  const [editDate, setEditDate]           = useState('');
+  const [editTime, setEditTime]           = useState('');
+  const [editExtras, setEditExtras]       = useState({});
+  const [editTicket, setEditTicket]       = useState(null);
+  const [editTicketName, setEditTicketName] = useState('');
+
+  // ── Ticket viewer modal ──
+  const [viewingTicket, setViewingTicket] = useState(null); // { data, name }
 
   useEffect(() => { saveJourneys(sessionId, journeys); }, [journeys, sessionId]);
 
@@ -190,10 +235,11 @@ export default function JourneyStitcher({ sessionId }) {
     setCoins(getCoins());
     const filledExtras = Object.fromEntries(Object.entries(extras).filter(([, v]) => v.trim()));
     setJourneys((prev) =>
-      [...prev, { id: Date.now(), type, from: f, to: t, departureDate: date, departureTime: time, extras: filledExtras, createdAt: new Date().toISOString() }]
+      [...prev, { id: Date.now(), type, from: f, to: t, departureDate: date, departureTime: time, extras: filledExtras, ticket, ticketName, createdAt: new Date().toISOString() }]
         .sort((a, b) => sortKey(a).localeCompare(sortKey(b)))
     );
     setFrom(''); setTo(''); setDate(''); setTime(''); setExtras(emptyExtras(type));
+    setTicket(null); setTicketName('');
     setShowForm(false);
     setFlash('success');
     setTimeout(() => setFlash(null), 2800);
@@ -209,6 +255,8 @@ export default function JourneyStitcher({ sessionId }) {
     setEditDate(journey.departureDate || '');
     setEditTime(journey.departureTime || '');
     setEditExtras(extrasFromJourney(journey));
+    setEditTicket(journey.ticket || null);
+    setEditTicketName(journey.ticketName || '');
   }
 
   function handleEditTypeChange(t) {
@@ -226,7 +274,7 @@ export default function JourneyStitcher({ sessionId }) {
     setJourneys((prev) =>
       prev.map((j) =>
         j.id === editingId
-          ? { ...j, type: editType, from: f, to: t, departureDate: editDate, departureTime: editTime, extras: filledExtras }
+          ? { ...j, type: editType, from: f, to: t, departureDate: editDate, departureTime: editTime, extras: filledExtras, ticket: editTicket, ticketName: editTicketName }
           : j
       ).sort((a, b) => sortKey(a).localeCompare(sortKey(b)))
     );
@@ -290,10 +338,12 @@ export default function JourneyStitcher({ sessionId }) {
                   {isEditing ? (
                     <JourneyForm
                       type={editType} from={editFrom} to={editTo} date={editDate} time={editTime} extras={editExtras}
+                      ticket={editTicket} ticketName={editTicketName}
                       onTypeChange={handleEditTypeChange}
                       onFromChange={setEditFrom} onToChange={setEditTo}
                       onDateChange={setEditDate} onTimeChange={setEditTime}
                       onExtraChange={setEditExtra}
+                      onTicketChange={(data, name) => { setEditTicket(data); setEditTicketName(name || ''); }}
                       onSubmit={handleSave} onCancel={cancelEdit}
                       submitLabel="Save changes"
                     />
@@ -325,6 +375,14 @@ export default function JourneyStitcher({ sessionId }) {
                           })}
                         </div>
                       )}
+                      {j.ticket && (
+                        <button
+                          className="stitcher__leg-ticket-btn"
+                          onClick={() => setViewingTicket({ data: j.ticket, name: j.ticketName })}
+                        >
+                          View ticket
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -344,14 +402,40 @@ export default function JourneyStitcher({ sessionId }) {
         ) : (
           <JourneyForm
             type={type} from={from} to={to} date={date} time={time} extras={extras}
+            ticket={ticket} ticketName={ticketName}
             onTypeChange={handleTypeChange}
             onFromChange={setFrom} onToChange={setTo}
             onDateChange={setDate} onTimeChange={setTime}
             onExtraChange={setExtra}
+            onTicketChange={(data, name) => { setTicket(data); setTicketName(name || ''); }}
             onSubmit={handleStitch} onCancel={() => setShowForm(false)}
             submitLabel={`Stitch — earn +${STITCH_REWARD} coins`}
           />
         )
+      )}
+      {/* Ticket viewer modal */}
+      {viewingTicket && (
+        <div className="stitcher__ticket-modal" onClick={() => setViewingTicket(null)}>
+          <div className="stitcher__ticket-modal-inner" onClick={(e) => e.stopPropagation()}>
+            <div className="stitcher__ticket-modal-header">
+              <span className="stitcher__ticket-modal-name">{viewingTicket.name}</span>
+              <button className="stitcher__ticket-modal-close" onClick={() => setViewingTicket(null)}>✕</button>
+            </div>
+            {viewingTicket.data.startsWith('data:application/pdf') ? (
+              <iframe
+                className="stitcher__ticket-iframe"
+                src={viewingTicket.data}
+                title={viewingTicket.name}
+              />
+            ) : (
+              <img
+                className="stitcher__ticket-img"
+                src={viewingTicket.data}
+                alt={viewingTicket.name}
+              />
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

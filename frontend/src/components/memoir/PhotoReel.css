@@ -160,6 +160,72 @@
   display: block;
 }
 
+/* ── Remove button on user-added thumbs ───────────────────────── */
+.photo-reel__thumb-remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+  z-index: 2;
+}
+
+.photo-reel__thumb-btn:hover .photo-reel__thumb-remove {
+  opacity: 1;
+}
+
+.photo-reel__thumb-remove:hover {
+  background: rgba(200, 50, 50, 0.8);
+  color: #fff;
+}
+
+/* ── Add photos button ─────────────────────────────────────────── */
+.photo-reel__add-wrap {
+  flex-shrink: 0;
+  padding: 10px 10px 14px;
+  border-top: 1px solid rgba(201, 169, 110, 0.08);
+}
+
+.photo-reel__add-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.55rem 0;
+  background: none;
+  border: 1px dashed rgba(201, 169, 110, 0.22);
+  border-radius: 6px;
+  color: rgba(201, 169, 110, 0.6);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+
+.photo-reel__add-btn:hover {
+  border-color: rgba(201, 169, 110, 0.45);
+  color: var(--accent-gold, #c9a96e);
+  background: rgba(201, 169, 110, 0.04);
+}
+
+.photo-reel__add-error {
+  font-size: 0.68rem;
+  color: rgba(240, 100, 100, 0.8);
+  text-align: center;
+  margin: 0 0 6px;
+}
+
 /* ── Backdrop ─────────────────────────────────────────────────── */
 .photo-reel__backdrop {
   position: fixed;

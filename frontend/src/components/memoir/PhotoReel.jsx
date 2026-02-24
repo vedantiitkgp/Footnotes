@@ -1,52 +1,111 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import './PhotoReel.css';
 
-// ── localStorage helpers for per-photo notes ──────────────────────────────────
-function getNoteKey(url)          { return `photo-note:${url}`; }
-function loadNote(url)            { return url ? (localStorage.getItem(getNoteKey(url)) || '') : ''; }
-function persistNote(url, text)   { localStorage.setItem(getNoteKey(url), text); }
+// ── Per-photo note helpers ────────────────────────────────────────────────────
+function getNoteKey(url)        { return `photo-note:${url.slice(0, 180)}`; }
+function loadNote(url)          { return url ? (localStorage.getItem(getNoteKey(url)) || '') : ''; }
+function persistNote(url, text) { localStorage.setItem(getNoteKey(url), text); }
 
-// ── QR code URL (free public API, no auth needed) ─────────────────────────────
+// ── Extra photos per-session ──────────────────────────────────────────────────
+function extraKey(sessionId)       { return `memoir-extra-photos:${sessionId}`; }
+function loadExtra(sessionId)      {
+  if (!sessionId) return [];
+  try { return JSON.parse(localStorage.getItem(extraKey(sessionId)) || '[]'); } catch { return []; }
+}
+function saveExtra(sessionId, arr) {
+  if (!sessionId) return;
+  try { localStorage.setItem(extraKey(sessionId), JSON.stringify(arr)); }
+  catch (e) { console.warn('[PhotoReel] localStorage quota exceeded:', e); }
+}
+
+// ── Compress image via canvas before storing ──────────────────────────────────
+function compressImage(dataUrl, maxPx = 1200, quality = 0.72) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxPx || height > maxPx) {
+        if (width > height) { height = Math.round(height * maxPx / width); width = maxPx; }
+        else                { width = Math.round(width * maxPx / height); height = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width  = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl); // fallback: store as-is
+    img.src = dataUrl;
+  });
+}
+
+// ── QR code (skip for data URLs) ──────────────────────────────────────────────
 function qrUrl(photoUrl) {
+  if (photoUrl.startsWith('data:')) return null;
   const full = window.location.origin + photoUrl;
   return `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(full)}&bgcolor=f9f4e8&color=2d1a0a&margin=4`;
 }
 
-export default function PhotoReel({ photoUrls = [] }) {
+export default function PhotoReel({ photoUrls = [], sessionId }) {
   const [open, setOpen]               = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [flipped, setFlipped]         = useState(false);
   const [noteText, setNoteText]       = useState('');
+  const [extraPhotos, setExtraPhotos] = useState(() => loadExtra(sessionId));
+  const [addError, setAddError]       = useState('');
+  const fileInputRef                  = useRef(null);
 
-  const total = photoUrls.length;
+  const allPhotos = [...photoUrls, ...extraPhotos];
+  const total     = allPhotos.length;
+
+  useEffect(() => { saveExtra(sessionId, extraPhotos); }, [extraPhotos, sessionId]);
 
   const prev = useCallback(() => setLightboxIdx((i) => (i - 1 + total) % total), [total]);
   const next = useCallback(() => setLightboxIdx((i) => (i + 1) % total), [total]);
   const closeLightbox = useCallback(() => { setLightboxIdx(null); setFlipped(false); }, []);
 
-  // Load saved note + reset flip whenever the active photo changes
   useEffect(() => {
     if (lightboxIdx === null) return;
     setFlipped(false);
-    setNoteText(loadNote(photoUrls[lightboxIdx]));
+    setNoteText(loadNote(allPhotos[lightboxIdx]));
   }, [lightboxIdx]);
 
-  // Persist note on change
   function handleNoteChange(e) {
     const text = e.target.value;
     setNoteText(text);
-    if (lightboxIdx !== null) persistNote(photoUrls[lightboxIdx], text);
+    if (lightboxIdx !== null) persistNote(allPhotos[lightboxIdx], text);
   }
 
-  // Keyboard navigation — disabled while typing in the notes textarea
+  // ── Add extra photos (compressed before storing) ─────────────────────────
+  async function handleAddPhotos(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setAddError('');
+
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const compressed = await compressImage(ev.target.result);
+        setExtraPhotos((prev) => [...prev, compressed]);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    e.target.value = '';
+  }
+
+  function removeExtraPhoto(dataUrl) {
+    setExtraPhotos((prev) => prev.filter((u) => u !== dataUrl));
+    // Close lightbox if the removed photo is currently open
+    if (lightboxIdx !== null && allPhotos[lightboxIdx] === dataUrl) closeLightbox();
+  }
+
+  // ── Keyboard navigation ───────────────────────────────────────────────────
   useEffect(() => {
     if (lightboxIdx === null) return;
     const onKey = (e) => {
       const typing = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
-      if (typing) {
-        if (e.key === 'Escape') closeLightbox();
-        return;
-      }
+      if (typing) { if (e.key === 'Escape') closeLightbox(); return; }
       if      (e.key === 'ArrowLeft')  { e.preventDefault(); prev(); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
       else if (e.key === 'Escape')     closeLightbox();
@@ -56,7 +115,6 @@ export default function PhotoReel({ photoUrls = [] }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [lightboxIdx, prev, next, closeLightbox]);
 
-  // Escape closes panel when no lightbox
   useEffect(() => {
     if (!open || lightboxIdx !== null) return;
     const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
@@ -64,20 +122,22 @@ export default function PhotoReel({ photoUrls = [] }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, lightboxIdx]);
 
-  if (!total) return null;
+  if (!total && !sessionId) return null;
 
-  const currentUrl = lightboxIdx !== null ? photoUrls[lightboxIdx] : null;
+  const currentUrl = lightboxIdx !== null ? allPhotos[lightboxIdx] : null;
+  const qr         = currentUrl ? qrUrl(currentUrl) : null;
 
   return (
     <>
       {/* Slide-in panel */}
       <div className={`photo-reel__panel ${open ? 'photo-reel__panel--open' : ''}`}>
         <div className="photo-reel__header">
-          <span className="photo-reel__title">{total} photos</span>
+          <span className="photo-reel__title">{total} photo{total !== 1 ? 's' : ''}</span>
           <button className="photo-reel__panel-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
         </div>
+
         <div className="photo-reel__grid">
-          {photoUrls.map((url, i) => (
+          {allPhotos.map((url, i) => (
             <button
               key={i}
               className="photo-reel__thumb-btn"
@@ -85,8 +145,33 @@ export default function PhotoReel({ photoUrls = [] }) {
               aria-label={`Open photo ${i + 1}`}
             >
               <img src={url} alt="" className="photo-reel__thumb" loading="lazy" />
+              {/* Remove button only for user-added photos */}
+              {url.startsWith('data:') && (
+                <button
+                  className="photo-reel__thumb-remove"
+                  onClick={(e) => { e.stopPropagation(); removeExtraPhoto(url); }}
+                  title="Remove photo"
+                  aria-label="Remove photo"
+                >×</button>
+              )}
             </button>
           ))}
+        </div>
+
+        {/* Add photos button */}
+        <div className="photo-reel__add-wrap">
+          {addError && <p className="photo-reel__add-error">{addError}</p>}
+          <label className="photo-reel__add-btn">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleAddPhotos}
+              hidden
+            />
+            + Add photos
+          </label>
         </div>
       </div>
 
@@ -106,7 +191,6 @@ export default function PhotoReel({ photoUrls = [] }) {
       {/* Lightbox */}
       {lightboxIdx !== null && (
         <div className="photo-reel__lightbox" onClick={closeLightbox}>
-
           <button className="photo-reel__lb-close" onClick={closeLightbox} aria-label="Close">✕</button>
 
           <button
@@ -120,7 +204,7 @@ export default function PhotoReel({ photoUrls = [] }) {
             className={`photo-reel__card ${flipped ? 'photo-reel__card--flipped' : ''}`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ── Front: the photo ── */}
+            {/* Front */}
             <div className="photo-reel__card-face photo-reel__card-front">
               <img
                 src={currentUrl}
@@ -136,9 +220,8 @@ export default function PhotoReel({ photoUrls = [] }) {
               </button>
             </div>
 
-            {/* ── Back: postcard ── */}
+            {/* Back: postcard */}
             <div className="photo-reel__card-face photo-reel__card-back">
-              {/* Left: writing area */}
               <div className="postcard-left">
                 <p className="postcard-label">People in this photo</p>
                 <textarea
@@ -153,10 +236,8 @@ export default function PhotoReel({ photoUrls = [] }) {
                 </div>
               </div>
 
-              {/* Divider */}
               <div className="postcard-divider" />
 
-              {/* Right: address + QR stamp */}
               <div className="postcard-right">
                 <div className="postcard-to">
                   <span className="postcard-to__label">To</span>
@@ -167,13 +248,14 @@ export default function PhotoReel({ photoUrls = [] }) {
 
                 <div className="postcard-stamp">
                   <div className="postcard-stamp__inner">
-                    <img
-                      src={qrUrl(currentUrl)}
-                      alt="QR code — scan to view on your phone"
-                      className="postcard-stamp__qr"
-                      loading="lazy"
-                    />
-                    <span className="postcard-stamp__label">SCAN</span>
+                    {qr ? (
+                      <>
+                        <img src={qr} alt="QR code" className="postcard-stamp__qr" loading="lazy" />
+                        <span className="postcard-stamp__label">SCAN</span>
+                      </>
+                    ) : (
+                      <span className="postcard-stamp__label" style={{ fontSize: '0.55rem', padding: '8px' }}>LOCAL PHOTO</span>
+                    )}
                   </div>
                 </div>
               </div>

@@ -499,6 +499,151 @@
   border-color: rgba(201, 168, 76, 0.65);
 }
 
+/* ── Ticket upload (in form) ── */
+.stitcher__ticket-upload {
+  display: inline-block;
+  border: 1px dashed rgba(201, 168, 76, 0.22);
+  border-radius: 6px;
+  padding: 0.45rem 1rem;
+  color: rgba(201, 168, 76, 0.55);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+
+.stitcher__ticket-upload:hover {
+  border-color: rgba(201, 168, 76, 0.45);
+  color: var(--accent-gold, #c9a84c);
+}
+
+.stitcher__ticket-attached {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(201, 168, 76, 0.07);
+  border: 1px solid rgba(201, 168, 76, 0.18);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+}
+
+.stitcher__ticket-filename {
+  font-size: 0.78rem;
+  color: var(--text-primary, #f5f0e8);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stitcher__ticket-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted, #8a8070);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.stitcher__ticket-remove:hover {
+  color: rgba(240, 80, 80, 0.8);
+}
+
+/* ── Ticket button on leg ── */
+.stitcher__leg-ticket-btn {
+  background: none;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  color: rgba(201, 168, 76, 0.6);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  margin-top: 0.2rem;
+}
+
+.stitcher__leg-ticket-btn:hover {
+  border-color: rgba(201, 168, 76, 0.5);
+  color: var(--accent-gold, #c9a84c);
+}
+
+/* ── Ticket viewer modal ── */
+.stitcher__ticket-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  backdrop-filter: blur(6px);
+}
+
+.stitcher__ticket-modal-inner {
+  background: #111;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 860px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.stitcher__ticket-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+  flex-shrink: 0;
+}
+
+.stitcher__ticket-modal-name {
+  font-size: 0.8rem;
+  color: var(--text-muted, #8a8070);
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stitcher__ticket-modal-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.stitcher__ticket-modal-close:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.stitcher__ticket-iframe {
+  width: 100%;
+  flex: 1;
+  min-height: 500px;
+  border: none;
+  background: #fff;
+}
+
+.stitcher__ticket-img {
+  width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  padding: 1rem;
+  background: #0a0a0a;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .stitcher {
