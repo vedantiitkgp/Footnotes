@@ -108,8 +108,8 @@ function findExcerpt(essay, name) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function LeafletMap({ points, essay = '' }) {
-  const center = points[Math.floor(points.length / 2)].coords;
+export default function LeafletMap({ points, essay = '', onRemove }) {
+  const center = points[Math.floor(points.length / 2)]?.coords ?? [20, 0];
 
   return (
     <MapContainer
@@ -132,7 +132,7 @@ export default function LeafletMap({ points, essay = '' }) {
         const excerpt = findExcerpt(essay, p.name);
         return (
           <Marker
-            key={i}
+            key={p.name}
             position={p.coords}
             icon={pulsingIcon(i === 0, i === points.length - 1)}
           >
@@ -144,6 +144,26 @@ export default function LeafletMap({ points, essay = '' }) {
                 <p style={{ margin: '6px 0 0', fontStyle: 'italic', opacity: 0.8, fontSize: '0.8rem', lineHeight: 1.5 }}>
                   "{excerpt}"
                 </p>
+              )}
+              {onRemove && (
+                <button
+                  onClick={() => onRemove(p)}
+                  style={{
+                    display: 'block',
+                    marginTop: '10px',
+                    background: 'none',
+                    border: '1px solid rgba(201,169,110,0.35)',
+                    color: 'rgba(201,169,110,0.75)',
+                    fontSize: '0.72rem',
+                    letterSpacing: '0.08em',
+                    padding: '3px 9px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    width: '100%',
+                  }}
+                >
+                  ✕ Remove pin
+                </button>
               )}
             </Popup>
           </Marker>

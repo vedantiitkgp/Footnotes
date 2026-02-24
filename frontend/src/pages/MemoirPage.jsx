@@ -130,7 +130,7 @@ export default function MemoirPage() {
         {locations.length > 0 && (
           <section className="memoir-section">
             <h2 className="memoir-section__heading">Your spots</h2>
-            <RouteMap locations={locations} essay={essay} />
+            <RouteMap locations={locations} essay={essay} sessionId={sessionId} />
           </section>
         )}
 

@@ -77,6 +77,42 @@
   color: var(--accent-cream-dim);
 }
 
+/* ── Removed-pin restore bar ── */
+.route-map__removed {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border-top: 1px solid rgba(201, 169, 110, 0.12);
+}
+
+.route-map__removed-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.route-map__restore-chip {
+  background: none;
+  border: 1px solid rgba(201, 169, 110, 0.28);
+  color: rgba(201, 169, 110, 0.65);
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+
+.route-map__restore-chip:hover {
+  background: rgba(201, 169, 110, 0.10);
+  color: var(--accent-gold);
+  border-color: rgba(201, 169, 110, 0.55);
+}
+
 /* ── Leaflet popup overrides ── */
 .leaflet-popup-content-wrapper {
   background: rgba(12, 12, 12, 0.92) !important;
