@@ -1,0 +1,125 @@
+/* ── Sakura ── deep rose-wine ─────────────────────────────────── */
+[data-theme="sakura"] {
+  --bg-primary:        #1c0812;
+  --bg-secondary:      #260f1c;
+  --bg-card:           #301525;
+  --bg-hover:          #3a1c2e;
+  --bg-dark:           #140610;
+  --accent-gold:       #e8a5c0;
+  --accent-gold-light: #f5c8da;
+  --accent-gold-dark:  #c07090;
+  --accent-cream:      #fdf0f5;
+  --accent-cream-dim:  #d4b0be;
+  --text-primary:      #ede0e8;
+  --text-secondary:    #a07888;
+  --text-muted:        #5a3848;
+  --border-subtle:     rgba(232, 165, 192, 0.15);
+  --border-medium:     rgba(232, 165, 192, 0.28);
+  --border-strong:     rgba(232, 165, 192, 0.55);
+  --shadow-glow:       0 0 40px rgba(232, 165, 192, 0.12);
+  --shadow-card:       0 4px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Ocean ── deep indigo-navy ────────────────────────────────── */
+[data-theme="ocean"] {
+  --bg-primary:        #020c1e;
+  --bg-secondary:      #061528;
+  --bg-card:           #0b1e38;
+  --bg-hover:          #102548;
+  --bg-dark:           #010810;
+  --accent-gold:       #4ecdc4;
+  --accent-gold-light: #88ede8;
+  --accent-gold-dark:  #2a9e96;
+  --accent-cream:      #e8f6f8;
+  --accent-cream-dim:  #a8d4da;
+  --text-primary:      #d0ecf0;
+  --text-secondary:    #6899a8;
+  --text-muted:        #344860;
+  --border-subtle:     rgba(78, 205, 196, 0.14);
+  --border-medium:     rgba(78, 205, 196, 0.28);
+  --border-strong:     rgba(78, 205, 196, 0.55);
+  --shadow-glow:       0 0 40px rgba(78, 205, 196, 0.09);
+  --shadow-card:       0 4px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Parchment ── aged sepia-amber ───────────────────────────── */
+[data-theme="parchment"] {
+  --bg-primary:        #160e04;
+  --bg-secondary:      #1e1508;
+  --bg-card:           #271c0c;
+  --bg-hover:          #302410;
+  --bg-dark:           #100a02;
+  --accent-gold:       #d4a84a;
+  --accent-gold-light: #eccf88;
+  --accent-gold-dark:  #a07828;
+  --accent-cream:      #fff8e0;
+  --accent-cream-dim:  #c8b888;
+  --text-primary:      #efe8d0;
+  --text-secondary:    #a09060;
+  --text-muted:        #605040;
+  --border-subtle:     rgba(212, 168, 74, 0.15);
+  --border-medium:     rgba(212, 168, 74, 0.28);
+  --border-strong:     rgba(212, 168, 74, 0.55);
+  --shadow-glow:       0 0 40px rgba(212, 168, 74, 0.10);
+  --shadow-card:       0 4px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* ── Aurora ── deep violet-midnight ──────────────────────────── */
+[data-theme="aurora"] {
+  --bg-primary:        #09051a;
+  --bg-secondary:      #100d26;
+  --bg-card:           #171334;
+  --bg-hover:          #1e1940;
+  --bg-dark:           #060310;
+  --accent-gold:       #a78bfa;
+  --accent-gold-light: #c4b5fd;
+  --accent-gold-dark:  #7c3aed;
+  --accent-cream:      #f0edff;
+  --accent-cream-dim:  #b8b0d8;
+  --text-primary:      #e8e4f8;
+  --text-secondary:    #7068a8;
+  --text-muted:        #404068;
+  --border-subtle:     rgba(167, 139, 250, 0.15);
+  --border-medium:     rgba(167, 139, 250, 0.28);
+  --border-strong:     rgba(167, 139, 250, 0.55);
+  --shadow-glow:       0 0 40px rgba(167, 139, 250, 0.10);
+  --shadow-card:       0 4px 24px rgba(0, 0, 0, 0.8);
+}
+
+/* ── Radial glows — body::before, full-width, no masking ────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme="sakura"] body::before {
+  background-image: radial-gradient(ellipse 70% 45% at 50% 0%, rgba(200, 60, 110, 0.22) 0%, transparent 65%);
+  background-repeat: no-repeat;
+}
+[data-theme="ocean"] body::before {
+  background-image: radial-gradient(ellipse 70% 45% at 50% 0%, rgba(30, 80, 180, 0.28) 0%, transparent 65%);
+  background-repeat: no-repeat;
+}
+[data-theme="parchment"] body::before {
+  background-image: radial-gradient(ellipse 70% 45% at 50% 0%, rgba(160, 100, 20, 0.26) 0%, transparent 65%);
+  background-repeat: no-repeat;
+}
+[data-theme="aurora"] body::before {
+  background-image: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(100, 40, 220, 0.28) 0%, rgba(0, 180, 140, 0.08) 55%, transparent 70%);
+  background-repeat: no-repeat;
+}
+html:not([data-theme]) body::before {
+  background-image: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(201, 169, 110, 0.10) 0%, transparent 65%);
+  background-repeat: no-repeat;
+}
+
+/* ── Smooth transition when switching ───────────────────────────*/
+html {
+  transition: background-color 0.5s ease;
+}
+body {
+  transition: background-color 0.5s ease, background-image 0.5s ease, color 0.5s ease;
+}

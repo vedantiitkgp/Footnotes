@@ -1,0 +1,39 @@
+<svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <!-- Leaf 1 (large) -->
+  <g transform="translate(68,82) rotate(-28)">
+    <path d="M 0,-22 C 11,-14 14,-2 0,10 C -14,-2 -11,-14 0,-22 Z"
+          fill="rgba(212,168,74,0.55)"/>
+    <line x1="0" y1="-22" x2="0" y2="10" stroke="rgba(160,120,40,0.35)" stroke-width="1"/>
+  </g>
+  <!-- Leaf 2 (medium) -->
+  <g transform="translate(205,165) rotate(32)">
+    <path d="M 0,-15 C 7,-9 9,-2 0,7 C -9,-2 -7,-9 0,-15 Z"
+          fill="rgba(212,168,74,0.46)"/>
+    <line x1="0" y1="-15" x2="0" y2="7" stroke="rgba(160,120,40,0.30)" stroke-width="0.8"/>
+  </g>
+  <!-- Leaf 3 -->
+  <g transform="translate(152,38) rotate(-12)">
+    <path d="M 0,-12 C 5,-7 7,-1 0,5 C -7,-1 -5,-7 0,-12 Z"
+          fill="rgba(212,168,74,0.42)"/>
+    <line x1="0" y1="-12" x2="0" y2="5" stroke="rgba(160,120,40,0.28)" stroke-width="0.8"/>
+  </g>
+  <!-- Leaf 4 -->
+  <g transform="translate(30,150) rotate(42)">
+    <path d="M 0,-14 C 6,-8 8,-1 0,6 C -8,-1 -6,-8 0,-14 Z"
+          fill="rgba(212,168,74,0.40)"/>
+    <line x1="0" y1="-14" x2="0" y2="6" stroke="rgba(160,120,40,0.26)" stroke-width="0.8"/>
+  </g>
+  <!-- Leaf 5 (small) -->
+  <g transform="translate(128,252) rotate(-20)">
+    <path d="M 0,-9 C 4,-5 5,-1 0,4 C -5,-1 -4,-5 0,-9 Z"
+          fill="rgba(212,168,74,0.36)"/>
+  </g>
+  <!-- Leaf 6 (tiny) -->
+  <g transform="translate(252,55) rotate(18)">
+    <path d="M 0,-8 C 3,-4 4,0 0,4 C -4,0 -3,-4 0,-8 Z"
+          fill="rgba(212,168,74,0.32)"/>
+  </g>
+  <!-- Small dots (seeds/berries) -->
+  <circle cx="235" cy="225" r="2.5" fill="rgba(212,168,74,0.30)"/>
+  <circle cx="22"  cy="55"  r="2"   fill="rgba(212,168,74,0.28)"/>
+</svg>

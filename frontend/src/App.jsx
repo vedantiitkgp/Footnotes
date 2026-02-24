@@ -2,6 +2,9 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { MemoirProvider } from './context/MemoirContext.jsx';
+import ThemeSwitcher from './components/ui/ThemeSwitcher.jsx';
+import ThemeOverlay from './components/ui/ThemeOverlay.jsx';
+import { ThemeProvider } from './hooks/useTheme.jsx';
 
 const LandingPage  = lazy(() => import('./pages/LandingPage.jsx'));
 const UploadPage   = lazy(() => import('./pages/UploadPage.jsx'));
@@ -28,6 +31,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <MemoirProvider>
+        <ThemeProvider>
+        <ThemeSwitcher />
+        <ThemeOverlay />
         <Suspense fallback={
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -39,6 +45,7 @@ export default function App() {
         }>
           <AnimatedRoutes />
         </Suspense>
+        </ThemeProvider>
       </MemoirProvider>
     </BrowserRouter>
   );

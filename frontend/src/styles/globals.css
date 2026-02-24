@@ -55,6 +55,19 @@ body {
   min-height: 100vh;
 }
 
+/* ── Grain overlay (all themes) ── z-index 3 = topmost layer ─── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background-image: url('/grain.svg');
+  background-size: 200px 200px;
+  mix-blend-mode: soft-light;
+  opacity: 0.2;
+}
+
 /* ─── Typography ─────────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);

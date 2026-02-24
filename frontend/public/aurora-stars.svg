@@ -1,0 +1,32 @@
+<svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <!-- Large 4-pointed sparkle -->
+  <g transform="translate(68,78)">
+    <path d="M 0,-15 L 2.5,-2.5 L 15,0 L 2.5,2.5 L 0,15 L -2.5,2.5 L -15,0 L -2.5,-2.5 Z"
+          fill="rgba(167,139,250,0.62)"/>
+  </g>
+  <!-- Medium sparkle -->
+  <g transform="translate(205,162) rotate(22)">
+    <path d="M 0,-10 L 1.8,-1.8 L 10,0 L 1.8,1.8 L 0,10 L -1.8,1.8 L -10,0 L -1.8,-1.8 Z"
+          fill="rgba(167,139,250,0.50)"/>
+  </g>
+  <!-- Small sparkle -->
+  <g transform="translate(38,52) rotate(-10)">
+    <path d="M 0,-7 L 1.2,-1.2 L 7,0 L 1.2,1.2 L 0,7 L -1.2,1.2 L -7,0 L -1.2,-1.2 Z"
+          fill="rgba(167,139,250,0.44)"/>
+  </g>
+  <g transform="translate(248,228) rotate(12)">
+    <path d="M 0,-6 L 1,-1 L 6,0 L 1,1 L 0,6 L -1,1 L -6,0 L -1,-1 Z"
+          fill="rgba(196,181,253,0.40)"/>
+  </g>
+  <g transform="translate(168,205) rotate(-8)">
+    <path d="M 0,-5 L 0.8,-0.8 L 5,0 L 0.8,0.8 L 0,5 L -0.8,0.8 L -5,0 L -0.8,-0.8 Z"
+          fill="rgba(167,139,250,0.36)"/>
+  </g>
+  <!-- Glowing dots -->
+  <circle cx="152" cy="28"  r="3"   fill="rgba(167,139,250,0.50)"/>
+  <circle cx="245" cy="78"  r="2"   fill="rgba(196,181,253,0.42)"/>
+  <circle cx="22"  cy="182" r="2.5" fill="rgba(167,139,250,0.46)"/>
+  <circle cx="118" cy="248" r="1.8" fill="rgba(167,139,250,0.36)"/>
+  <circle cx="255" cy="118" r="1.5" fill="rgba(196,181,253,0.32)"/>
+  <circle cx="58"  cy="238" r="1.5" fill="rgba(167,139,250,0.30)"/>
+</svg>

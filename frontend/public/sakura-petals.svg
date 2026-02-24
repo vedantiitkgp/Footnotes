@@ -1,0 +1,27 @@
+<svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main flower (top-left quadrant) -->
+  <g transform="translate(68,82)">
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.70)" transform="rotate(0) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.70)" transform="rotate(72) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.70)" transform="rotate(144) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.70)" transform="rotate(216) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.70)" transform="rotate(288) translate(0,-11)"/>
+    <circle r="3" fill="rgba(245,200,218,0.85)"/>
+  </g>
+  <!-- Secondary smaller flower (bottom-right quadrant) -->
+  <g transform="translate(208,196) scale(0.60) rotate(22)">
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.58)" transform="rotate(0) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.58)" transform="rotate(72) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.58)" transform="rotate(144) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.58)" transform="rotate(216) translate(0,-11)"/>
+    <ellipse rx="4" ry="9" fill="rgba(232,165,192,0.58)" transform="rotate(288) translate(0,-11)"/>
+    <circle r="3" fill="rgba(245,200,218,0.70)"/>
+  </g>
+  <!-- Scattered falling petals -->
+  <ellipse cx="158" cy="26"  rx="4" ry="8" fill="rgba(232,165,192,0.50)" transform="rotate(-28,158,26)"/>
+  <ellipse cx="245" cy="112" rx="3" ry="7" fill="rgba(232,165,192,0.44)" transform="rotate(48,245,112)"/>
+  <ellipse cx="20"  cy="198" rx="4" ry="8" fill="rgba(232,165,192,0.50)" transform="rotate(18,20,198)"/>
+  <ellipse cx="130" cy="254" rx="3" ry="6" fill="rgba(232,165,192,0.42)" transform="rotate(-12,130,254)"/>
+  <ellipse cx="32"  cy="42"  rx="3" ry="6" fill="rgba(232,165,192,0.44)" transform="rotate(38,32,42)"/>
+  <ellipse cx="258" cy="250" rx="3" ry="6" fill="rgba(232,165,192,0.38)" transform="rotate(-22,258,250)"/>
+</svg>

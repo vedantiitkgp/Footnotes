@@ -1,0 +1,35 @@
+<svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <!-- Drop 1 (large) -->
+  <g transform="translate(72,85)">
+    <path d="M 0,0 C -9,-9 -12,8 -8,18 a8,8 0 0,0 16,0 C 12,8 9,-9 0,0 Z"
+          fill="rgba(78,205,196,0.58)"/>
+    <ellipse cx="-3" cy="10" rx="2.5" ry="4" fill="rgba(255,255,255,0.22)" transform="rotate(-12,-3,10)"/>
+  </g>
+  <!-- Drop 2 (medium) -->
+  <g transform="translate(198,58)">
+    <path d="M 0,0 C -6,-6 -8,5 -5,12 a5,5 0 0,0 10,0 C 8,5 6,-6 0,0 Z"
+          fill="rgba(78,205,196,0.44)"/>
+  </g>
+  <!-- Drop 3 (medium) -->
+  <g transform="translate(148,178)">
+    <path d="M 0,0 C -7,-7 -10,6 -7,15 a7,7 0 0,0 14,0 C 10,6 7,-7 0,0 Z"
+          fill="rgba(78,205,196,0.50)"/>
+    <ellipse cx="-2.5" cy="8" rx="2" ry="3.5" fill="rgba(255,255,255,0.20)" transform="rotate(-10,-2.5,8)"/>
+  </g>
+  <!-- Drop 4 (small) -->
+  <g transform="translate(30,195)">
+    <path d="M 0,0 C -5,-5 -6,4 -4,9 a4,4 0 0,0 8,0 C 6,4 5,-5 0,0 Z"
+          fill="rgba(78,205,196,0.38)"/>
+  </g>
+  <!-- Drop 5 (tiny) -->
+  <g transform="translate(240,200)">
+    <path d="M 0,0 C -4,-4 -5,3 -3,7 a3,3 0 0,0 6,0 C 5,3 4,-4 0,0 Z"
+          fill="rgba(78,205,196,0.32)"/>
+  </g>
+  <!-- Ripple rings -->
+  <ellipse cx="228" cy="185" rx="14" ry="5"  fill="none" stroke="rgba(78,205,196,0.28)" stroke-width="1.5"/>
+  <ellipse cx="228" cy="185" rx="22" ry="8"  fill="none" stroke="rgba(78,205,196,0.13)" stroke-width="1"/>
+  <ellipse cx="42"  cy="145" rx="10" ry="3.5" fill="none" stroke="rgba(78,205,196,0.24)" stroke-width="1.5"/>
+  <ellipse cx="42"  cy="145" rx="17" ry="6"   fill="none" stroke="rgba(78,205,196,0.10)" stroke-width="1"/>
+  <ellipse cx="180" cy="255" rx="8"  ry="3"   fill="none" stroke="rgba(78,205,196,0.20)" stroke-width="1"/>
+</svg>
