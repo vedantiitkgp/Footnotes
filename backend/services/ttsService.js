@@ -24,7 +24,7 @@ async function withRetry(fn, attempts = 2) {
 }
 
 export async function generateVoiceover({ text, assetsDir, voiceName = 'Charon' }) {
-  const trimmed = text.slice(0, 4000).trim();
+  const trimmed = text.slice(0, 9000).trim();
   console.log(`[tts] Generating voiceover — ${trimmed.length} chars, voice=${voiceName}`);
 
   try {

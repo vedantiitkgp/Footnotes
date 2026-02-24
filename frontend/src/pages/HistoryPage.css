@@ -8,7 +8,10 @@
 .history-page__header {
   text-align: center;
   padding-top: 3rem;
-  padding-bottom: 2.5rem;
+}
+
+.history-page__header.container {
+  margin-bottom: 4rem;
 }
 
 .history-page__back {
