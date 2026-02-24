@@ -37,6 +37,66 @@
   letter-spacing: 0.05em;
 }
 
+/* ── Editable header fields ── */
+.memoir-hero__editable {
+  cursor: pointer;
+  position: relative;
+  transition: opacity 0.15s;
+}
+
+.memoir-hero__editable:hover {
+  opacity: 0.85;
+}
+
+.memoir-hero__edit-hint {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.65em;
+  opacity: 0;
+  color: var(--accent-gold, #c9a84c);
+  vertical-align: middle;
+  transition: opacity 0.15s;
+  font-style: normal;
+}
+
+.memoir-hero__editable:hover .memoir-hero__edit-hint {
+  opacity: 0.6;
+}
+
+/* Eyebrow input */
+.memoir-hero__eyebrow--input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.4);
+  outline: none;
+  color: var(--accent-gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-family: inherit;
+  width: 100%;
+  max-width: 320px;
+  padding: 0 0 2px;
+}
+
+/* Title textarea */
+.memoir-hero__title--input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.4);
+  outline: none;
+  resize: none;
+  color: var(--accent-cream);
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.1;
+  font-family: var(--font-serif, Georgia, serif);
+  width: 100%;
+  max-width: 820px;
+  padding: 0 0 4px;
+  overflow: hidden;
+}
+
 .memoir-hero__divider {
   height: 1px;
   background: linear-gradient(90deg, var(--accent-gold), transparent);

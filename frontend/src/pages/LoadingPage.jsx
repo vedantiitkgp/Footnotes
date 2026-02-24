@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useSSE } from '../hooks/useSSE.js';
 import { useMemoir } from '../context/MemoirContext.jsx';
 import { saveToHistory } from '../utils/memoirHistory.js';
+import { earnCoins } from '../utils/coins.js';
 import ProgressBar from '../components/ui/ProgressBar.jsx';
 import StageIndicator from '../components/ui/StageIndicator.jsx';
 import './LoadingPage.css';
@@ -48,6 +49,7 @@ export default function LoadingPage() {
       const title = state.structure?.chapters?.[0]?.title || 'A Journey in Words';
       const locations = state.structure?.locations || [];
       saveToHistory(sessionId, title, locations);
+      earnCoins(500);
       navigate(`/memoir/${sessionId}`, { replace: true });
     },
 

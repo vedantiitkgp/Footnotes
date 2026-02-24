@@ -10,6 +10,7 @@ import StickyAudioPlayer from '../components/audio/StickyAudioPlayer.jsx';
 import ExportPanel from '../components/memoir/ExportPanel.jsx';
 import WhatIfSection from '../components/memoir/WhatIfSection.jsx';
 import PhotoReel from '../components/memoir/PhotoReel.jsx';
+import JourneyStitcher from '../components/memoir/JourneyStitcher.jsx';
 import './MemoirPage.css';
 
 const PAGE_TRANSITION = {
@@ -35,6 +36,37 @@ export default function MemoirPage() {
 
   const [audioPlaying, setAudioPlaying] = useState(false);
   useAmbientSound(locations, audioPlaying);
+
+  // ── Editable header ──────────────────────────────────────────────────────
+  const HEADER_KEY = sessionId ? `memoir-header:${sessionId}` : null;
+  const [headerEdits, setHeaderEdits] = useState(() => {
+    if (!HEADER_KEY) return {};
+    try { return JSON.parse(localStorage.getItem(HEADER_KEY) || '{}'); } catch { return {}; }
+  });
+  const [editingField, setEditingField] = useState(null); // 'title' | 'eyebrow'
+  const [draftValue,   setDraftValue]   = useState('');
+
+  const displayTitle   = headerEdits.title   ?? (structure?.chapters?.[0]?.title || 'A Journey in Words');
+  const displayEyebrow = headerEdits.eyebrow ?? 'your memoir';
+
+  function startEdit(field, current) {
+    setEditingField(field);
+    setDraftValue(current);
+  }
+
+  function commitEdit() {
+    if (!editingField) return;
+    const trimmed = draftValue.trim();
+    const next = trimmed ? { ...headerEdits, [editingField]: trimmed } : headerEdits;
+    setHeaderEdits(next);
+    if (HEADER_KEY) localStorage.setItem(HEADER_KEY, JSON.stringify(next));
+    setEditingField(null);
+  }
+
+  function handleEditKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commitEdit(); }
+    if (e.key === 'Escape') setEditingField(null);
+  }
 
   // Reset word/line highlights when audio changes (new memoir or URL change)
   useEffect(() => { essayRef.current?.reset(); }, [audioUrl]);
@@ -103,10 +135,52 @@ export default function MemoirPage() {
       {/* Hero */}
       <header className="memoir-hero">
         <div className="memoir-hero__inner container">
-          <p className="memoir-hero__eyebrow">your memoir</p>
-          <h1 className="memoir-hero__title">
-            {structure?.chapters?.[0]?.title || 'A Journey in Words'}
-          </h1>
+
+          {/* Editable eyebrow */}
+          {editingField === 'eyebrow' ? (
+            <input
+              className="memoir-hero__eyebrow memoir-hero__eyebrow--input"
+              value={draftValue}
+              onChange={(e) => setDraftValue(e.target.value)}
+              onBlur={commitEdit}
+              onKeyDown={handleEditKeyDown}
+              autoFocus
+              maxLength={60}
+            />
+          ) : (
+            <p
+              className="memoir-hero__eyebrow memoir-hero__editable"
+              onClick={() => startEdit('eyebrow', displayEyebrow)}
+              title="Click to edit"
+            >
+              {displayEyebrow}
+              <span className="memoir-hero__edit-hint">✎</span>
+            </p>
+          )}
+
+          {/* Editable title */}
+          {editingField === 'title' ? (
+            <textarea
+              className="memoir-hero__title memoir-hero__title--input"
+              value={draftValue}
+              onChange={(e) => setDraftValue(e.target.value)}
+              onBlur={commitEdit}
+              onKeyDown={handleEditKeyDown}
+              autoFocus
+              rows={2}
+              maxLength={120}
+            />
+          ) : (
+            <h1
+              className="memoir-hero__title memoir-hero__editable"
+              onClick={() => startEdit('title', displayTitle)}
+              title="Click to edit"
+            >
+              {displayTitle}
+              <span className="memoir-hero__edit-hint">✎</span>
+            </h1>
+          )}
+
           {locations.length > 0 && (
             <p className="memoir-hero__locations">
               {locations.slice(0, 5).join(' · ')}
@@ -144,6 +218,11 @@ export default function MemoirPage() {
             sessionId={sessionId}
             locations={locations}
           />
+        </section>
+
+        {/* Journey Stitcher */}
+        <section className="memoir-section">
+          <JourneyStitcher sessionId={sessionId} />
         </section>
 
         {/* What If */}

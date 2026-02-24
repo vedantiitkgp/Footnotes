@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 90" fill="none">
+  <!-- ─── Fuselage ─── -->
+  <!-- Upper silhouette: tail → nose -->
+  <path
+    d="M38 40
+       Q38 28 54 26
+       L158 25
+       Q182 25 190 42
+       Q182 59 158 59
+       L54 58
+       Q38 56 38 44
+       Z"
+    fill="#c9a84c" opacity="0.9"
+  />
+
+  <!-- Nose-cone highlight (right end) -->
+  <path
+    d="M166 27 Q188 30 190 42 Q188 54 166 57
+       Q180 50 180 42 Q180 34 166 27Z"
+    fill="#edd060" opacity="0.35"
+  />
+
+  <!-- ─── Vertical tail fin ─── -->
+  <path
+    d="M48 26 L44 8 Q52 4 60 8 L62 26Z"
+    fill="#d4a840" opacity="0.92"
+  />
+
+  <!-- ─── Horizontal stabiliser (rear) ─── -->
+  <path
+    d="M42 42 L18 35 L20 42 L18 49 Z"
+    fill="#c9a040" opacity="0.82"
+  />
+
+  <!-- ─── Main wing (swept back, side view) ─── -->
+  <!-- A simple clean swept triangle below the fuselage -->
+  <path
+    d="M106 58 L76 80 L64 74 L86 58Z"
+    fill="#e2b840" opacity="0.88"
+  />
+
+  <!-- ─── Engine nacelle under wing ─── -->
+  <rect x="62" y="78" width="28" height="9" rx="4.5"
+        fill="#b08820" opacity="0.92"/>
+  <!-- engine intake ring -->
+  <ellipse cx="62" cy="82.5" rx="4.5" ry="4.5"
+           fill="#7a5810" opacity="0.9"/>
+
+  <!-- ─── Portholes ─── -->
+  <circle cx="118" cy="42" r="5.5" fill="#081622" opacity="0.75"/>
+  <circle cx="118" cy="42" r="3.3" fill="#66aaee" opacity="0.45"/>
+
+  <circle cx="138" cy="41" r="5.5" fill="#081622" opacity="0.75"/>
+  <circle cx="138" cy="41" r="3.3" fill="#66aaee" opacity="0.45"/>
+
+  <circle cx="158" cy="41" r="5.5" fill="#081622" opacity="0.75"/>
+  <circle cx="158" cy="41" r="3.3" fill="#66aaee" opacity="0.45"/>
+
+  <circle cx="176" cy="41" r="5.5" fill="#081622" opacity="0.75"/>
+  <circle cx="176" cy="41" r="3.3" fill="#66aaee" opacity="0.45"/>
+
+  <!-- ─── Cockpit strip ─── -->
+  <path
+    d="M160 27 Q174 27 181 34 Q174 29 160 30Z"
+    fill="#66aaee" opacity="0.5"
+  />
+</svg>
