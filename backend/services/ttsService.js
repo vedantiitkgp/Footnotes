@@ -1,34 +1,16 @@
 import { GoogleGenAI } from '@google/genai';
 import fs from 'fs';
 import path from 'path';
+import { withRetry } from './withRetry.js';
 
-function getAI() {
-  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-}
-
-async function withRetry(fn, attempts = 2) {
-  for (let i = 0; i < attempts; i++) {
-    try {
-      return await fn();
-    } catch (err) {
-      const is429 = err?.status === 429 || err?.message?.includes('429') || err?.message?.includes('RESOURCE_EXHAUSTED');
-      if (is429 && i < attempts - 1) {
-        const delay = (i + 1) * 10000;
-        console.warn(`[tts] 429 — retrying in ${delay / 1000}s`);
-        await new Promise((r) => setTimeout(r, delay));
-      } else {
-        throw err;
-      }
-    }
-  }
-}
+const retry = (fn) => withRetry(fn, { label: 'tts', attempts: 2, baseDelayMs: 10000 });
 
 export async function generateVoiceover({ text, assetsDir, voiceName = 'Charon' }) {
   const trimmed = text.slice(0, 9000).trim();
   console.log(`[tts] Generating voiceover — ${trimmed.length} chars, voice=${voiceName}`);
 
   try {
-    const response = await withRetry(async () => {
+    const response = await retry(async () => {
       return await getAI().models.generateContent({
         model: 'gemini-2.5-flash-preview-tts',
         contents: [{ parts: [{ text: trimmed }] }],

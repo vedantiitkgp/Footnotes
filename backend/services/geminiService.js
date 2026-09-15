@@ -1,27 +1,16 @@
 import { GoogleGenAI } from '@google/genai';
 import fs from 'fs';
 import path from 'path';
+import { withRetry } from './withRetry.js';
+
+// Free-tier quota is per-project-per-model, so switching models gets a fresh
+// bucket. Set GEMINI_MODEL in Render to change it without a code deploy.
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+
+const retry = (fn) => withRetry(fn, { label: 'gemini' });
 
 function getAI() {
   return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-}
-
-/** Retry a fn up to `attempts` times with exponential backoff on 429 */
-async function withRetry(fn, attempts = 3) {
-  for (let i = 0; i < attempts; i++) {
-    try {
-      return await fn();
-    } catch (err) {
-      const is429 = err?.status === 429 || err?.message?.includes('429') || err?.message?.includes('RESOURCE_EXHAUSTED');
-      if (is429 && i < attempts - 1) {
-        const delay = (i + 1) * 8000; // 8s, 16s
-        console.warn(`[gemini] 429 — retrying in ${delay / 1000}s (attempt ${i + 1}/${attempts})`);
-        await new Promise((r) => setTimeout(r, delay));
-      } else {
-        throw err;
-      }
-    }
-  }
 }
 
 function fileToInlinePart(filePath) {
@@ -57,9 +46,9 @@ Examine ALL the photos carefully and return ONLY valid JSON:
 Be specific and evocative. Prioritize unique, memorable details over generic ones.`,
   };
 
-  return withRetry(async () => {
+  return retry(async () => {
     const response = await getAI().models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: MODEL,
       contents: [{ parts: [...imageParts, promptPart] }],
     });
 
@@ -90,9 +79,9 @@ Essay:
 
 Return ONLY the JSON array.`;
 
-  return withRetry(async () => {
+  return retry(async () => {
     const response = await getAI().models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: MODEL,
       contents: [{ parts: [{ text: prompt }] }],
     });
     const text  = response.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
@@ -132,9 +121,9 @@ Return ONLY valid JSON — exactly 6 objects:
   { "question": "What if...", "answer": "..." }
 ]`;
 
-  return withRetry(async () => {
+  return retry(async () => {
     const response = await getAI().models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: MODEL,
       contents: [{ parts: [{ text: prompt }] }],
     });
     const text  = response.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
@@ -186,9 +175,9 @@ Use "## Chapter Title" for each heading.
 Weave in specific landmark names, vivid people descriptions, and any sign/place text naturally — don't list them, let them emerge in the prose.
 Write the actual essay — no placeholders.`;
 
-  return withRetry(async () => {
+  return retry(async () => {
     const stream = await getAI().models.generateContentStream({
-      model: 'gemini-3.6-flash',
+      model: MODEL,
       contents: [{ parts: [...samplePhotos, { text: prompt }] }],
     });
 
