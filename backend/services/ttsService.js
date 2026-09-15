@@ -3,6 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { withRetry } from './withRetry.js';
 
+function getAI() {
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+}
+
 const retry = (fn) => withRetry(fn, { label: 'tts', attempts: 2, baseDelayMs: 10000 });
 
 export async function generateVoiceover({ text, assetsDir, voiceName = 'Charon' }) {
