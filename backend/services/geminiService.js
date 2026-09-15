@@ -59,7 +59,7 @@ Be specific and evocative. Prioritize unique, memorable details over generic one
 
   return withRetry(async () => {
     const response = await getAI().models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: [{ parts: [...imageParts, promptPart] }],
     });
 
@@ -92,7 +92,7 @@ Return ONLY the JSON array.`;
 
   return withRetry(async () => {
     const response = await getAI().models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: [{ parts: [{ text: prompt }] }],
     });
     const text  = response.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
@@ -134,7 +134,7 @@ Return ONLY valid JSON — exactly 6 objects:
 
   return withRetry(async () => {
     const response = await getAI().models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: [{ parts: [{ text: prompt }] }],
     });
     const text  = response.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
@@ -188,7 +188,7 @@ Write the actual essay — no placeholders.`;
 
   return withRetry(async () => {
     const stream = await getAI().models.generateContentStream({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: [{ parts: [...samplePhotos, { text: prompt }] }],
     });
 
