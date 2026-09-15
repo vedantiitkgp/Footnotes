@@ -1,5 +1,5 @@
 # ── Stage 1: Build the React frontend ─────────────────────────────────────────
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 WORKDIR /build/frontend
 COPY frontend/package*.json ./
@@ -8,7 +8,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # ── Stage 2: Production server ─────────────────────────────────────────────────
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
