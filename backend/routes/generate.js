@@ -7,6 +7,7 @@ import { analyzeWithVision, isVisionEnabled } from '../services/visionService.js
 import { extractPhotoMetadata, buildExifContext } from '../services/exifService.js';
 import { generateAllPostcards } from '../services/imagenService.js';
 import { generateVoiceover } from '../services/ttsService.js';
+import { supabaseEnabled, uploadObject, saveMemoir } from '../services/supabase.js';
 
 const router = express.Router();
 
@@ -213,6 +214,20 @@ router.get('/:sessionId', async (req, res) => {
       path.join(sessionDir, 'memoir.json'),
       JSON.stringify(memoirData, null, 2),
     );
+
+    // Persist to Supabase so it survives the ephemeral Render filesystem.
+    if (supabaseEnabled) {
+      try {
+        await Promise.all([
+          ...photoFiles.map((f) => uploadObject(`${sessionId}/photos/${f}`, path.join(photosDir, f))),
+          ...collectedPostcards.map((p) => uploadObject(`${sessionId}/assets/${p.filename}`, path.join(assetsDir, p.filename))),
+          ...(audioFilename ? [uploadObject(`${sessionId}/assets/${audioFilename}`, path.join(assetsDir, audioFilename))] : []),
+        ]);
+        await saveMemoir(sessionId, memoirData);
+      } catch (err) {
+        console.error('[generate] Supabase persist failed:', err.message);
+      }
+    }
 
     sendEvent(res, 'progress', { stage: 'complete', percent: 100, message: 'Your memoir is ready!' });
     sendEvent(res, 'complete', { sessionId });
