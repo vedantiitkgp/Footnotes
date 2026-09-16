@@ -1,0 +1,102 @@
+.gphotos {
+  margin-top: 16px;
+  text-align: center;
+}
+
+/* Secondary action — deliberately quieter than .upload-form__submit, and
+   styled to mirror .dropzone, which it sits beside and substitutes for.
+   The Google mark keeps its own colours (Google's branding rules don't allow
+   recolouring it, and it's the recognisable part). */
+.gphotos__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--accent-cream);
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition-base),
+              background var(--transition-base),
+              transform var(--transition-base);
+}
+
+.gphotos__btn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  background: var(--bg-hover);
+  transform: translateY(-1px);
+}
+
+/* Only ever brief now: loading Google's script, or a pick in flight. Both
+   states say why in the label rather than just going grey. */
+.gphotos__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gphotos__mark {
+  flex: none;
+  display: block;
+}
+
+.gphotos__status {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.gphotos__link {
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color var(--transition-base);
+}
+
+.gphotos__link:hover { color: var(--accent-gold-light); }
+
+.gphotos__picked-title {
+  margin: 0 0 10px;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--accent-cream);
+}
+
+.gphotos__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.gphotos__chip {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--accent-cream-dim);
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm, 999px);
+}
+
+.gphotos__error {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--error, #e8836f);
+}

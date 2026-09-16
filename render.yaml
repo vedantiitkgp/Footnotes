@@ -9,3 +9,7 @@ services:
         value: production
       - key: GEMINI_API_KEY
         sync: false
+      # Optional: enables "Import from Google Photos". Set the value in the
+      # Render dashboard. Absent = the feature hides itself.
+      - key: GOOGLE_PHOTOS_CLIENT_ID
+        sync: false
