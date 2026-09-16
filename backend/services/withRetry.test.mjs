@@ -21,6 +21,20 @@ await assert.rejects(() => withRetry(
 ));
 assert.equal(calls, 3, 'per-minute quota should still use all attempts');
 
+// 503 UNAVAILABLE is transient capacity pressure — the short-horizon case.
+// Observed in production: an unretried 503 failed a whole memoir instantly.
+const unavailableErr = () => Object.assign(
+  new Error('got status: 503 Service Unavailable. {"error":{"code":503,"message":"This model is currently experiencing high demand.","status":"UNAVAILABLE"}}'),
+  { status: 503 },
+);
+
+calls = 0;
+await assert.rejects(() => withRetry(
+  async () => { calls++; throw unavailableErr(); },
+  { baseDelayMs: 1 },
+));
+assert.equal(calls, 3, '503 UNAVAILABLE must be retried — it clears in seconds');
+
 calls = 0;
 assert.equal(await withRetry(async () => { calls++; return 'ok'; }), 'ok');
 assert.equal(calls, 1, 'success path must not retry');
