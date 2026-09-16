@@ -25,6 +25,11 @@ function parseEssay(text) {
   return chapters;
 }
 
+// MUST match the cap in backend/services/ttsService.js (text.slice(0, 9000)).
+// The highlight position is derived from it, so if the two disagree the
+// highlight drifts out of sync with the voice for the whole playback.
+const TTS_CHAR_CAP = 9000;
+
 const PULL_KEYWORDS = /dawn|night|silence|light|shadow|ancient|vast|wonder|lost|found|sky|sea|heart|breath|dust|memory|horizon/i;
 
 function extractPullQuote(para) {
@@ -68,8 +73,10 @@ const EssayRenderer = forwardRef(function EssayRenderer(
     });
 
     const totalWords  = gWordIdx;
-    // TTS reads first 4000 chars — estimate how many words that covers
-    const spokenWords = essay.slice(0, 4000).split(/\s+/).filter(Boolean).length;
+    // How many words the voiceover actually covers — see TTS_CHAR_CAP above.
+    // For an essay shorter than the cap this equals totalWords, which is the
+    // usual case (essays are 700-1000 words).
+    const spokenWords = essay.slice(0, TTS_CHAR_CAP).split(/\s+/).filter(Boolean).length;
     return { chapters, totalWords, spokenWords };
   }, [essay]);
 
